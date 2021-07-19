@@ -1,0 +1,42 @@
+<template>
+  <div class="app-page">
+    <div>
+      <div>
+        <div class="breadcrumb-wrap">
+          <a href="/history" class="breadcrumb">История</a>
+          <a class="breadcrumb">
+            Расход
+          </a>
+        </div>
+        <div class="row">
+          <div class="col s12 m6">
+            <div class="card red">
+              <div class="card-content white-text">
+                <p>Описание:</p>
+                <p>Сумма:</p>
+                <p>Категория:</p>
+
+                <small>12.12.12</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "History"
+}
+</script>
+
+<style scoped>
+
+.consumption {
+  padding: 5px;
+  background: #ffa0a0;
+}
+
+</style>
