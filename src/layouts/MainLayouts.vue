@@ -27,11 +27,30 @@
 <script>
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
+import { useAuth } from "../firebase"
+import {onMounted} from "vue";
 
 export default {
   name: "mainLayouts",
   components: {Sidebar, Navbar},
   emits: ["toggle-sidebar"],
+  setup () {
+    const { user, isLogin } = useAuth()
+
+   const getUser = async () => {
+      if (isLogin) {
+        await console.log(user.value)
+      }
+
+   }
+
+   onMounted(getUser)
+    setTimeout(() => {
+      console.log(user.value)
+    }, 2000)
+
+    return { user }
+  },
   data () {
     return {
       isToggleSidebar: false

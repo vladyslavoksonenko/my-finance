@@ -11,7 +11,7 @@ export default {
   components: {EmptyLayouts, MainLayouts},
   computed: {
     layout() {
-      return (this.$route.meta.layout || 'empty') + '-layouts'
+      return (this.$route.meta.layout || 'em pty') + '-layouts'
     }
   }
 

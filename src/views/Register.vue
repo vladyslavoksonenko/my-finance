@@ -1,38 +1,48 @@
 <template>
-  <form class="card auth-card">
+  <form @submit.prevent="onSubmit" class="card auth-card">
     <div class="card-content">
       <span class="card-title">Домашняя бухгалтерия</span>
       <div class="input-field">
         <input
-            id="email"
-            type="text"
+          id="email"
+          type="text"
+          v-model.trim="email"
+          @blur="v$.email.$touch"
         >
         <label for="email">Email</label>
-        <small class="helper-text invalid">Email</small>
+        <small class="helper-text invalid" v-if="v$.email.$error">Введите корректно Email</small>
       </div>
       <div class="input-field">
         <input
-            id="password"
-            type="password"
-            class="validate"
+          id="password"
+          type="password"
+          class="validate"
+          v-model.trim="password"
+          @blur="v$.password.$touch"
         >
         <label for="password">Пароль</label>
-        <small class="helper-text invalid">Password</small>
+        <small v-if="v$.password.$error"
+          class="helper-text invalid">
+          Введите более {{ v$.password.minLength.$params.min }} символов
+        </small>
       </div>
       <div class="input-field">
         <input
             id="name"
             type="text"
             class="validate"
+            v-model.trim="name"
+            @blur="v$.name.$touch"
         >
         <label for="name">Имя</label>
-        <small class="helper-text invalid">Name</small>
+        <small v-if="v$.name.$error" class="helper-text invalid">Введите корректное имя</small>
       </div>
       <p>
         <label>
-          <input type="checkbox" />
+          <input v-model="isAccepted" type="checkbox" />
           <span>С правилами согласен</span>
         </label>
+        <small v-if="v$.isAccepted.$error" class="helper-text invalid">Вы не согласны из правилами</small>
       </p>
     </div>
     <div class="card-action">
@@ -55,8 +65,56 @@
 </template>
 
 <script>
+import useVuelidate from "@vuelidate/core";
+import {minLength, email, required} from "@vuelidate/validators";
+import { useAuth } from "../firebase";
+import messages from "../utils/messages";
+
+
 export default {
-  name: "Register"
+  name: "Register",
+  setup () {
+    const { signUp } = useAuth()
+    return {
+      signUp,
+      v$: useVuelidate()
+    }
+  },
+  data () {
+    return {
+      email: '',
+      password: '',
+      name: '',
+      isAccepted: false
+    }
+  },
+  validations () {
+    return {
+      email: {email, required},
+      password: {minLength: minLength(6), required},
+      name: {minLength: minLength(2), required},
+      isAccepted: {checked: v => v}
+    }
+  },
+  methods: {
+    async onSubmit () {
+      if (this.v$.$invalid) {
+        this.v$.$touch()
+        return
+      }
+      const dataRegisteration = {
+        name: this.name,
+        email: this.email,
+        password: this.password
+      }
+      const result = await this.signUp(dataRegisteration.name, dataRegisteration.email, dataRegisteration.password)
+      if (result.user) {
+        this.$message(messages["login"])
+        await this.$router.push('/')
+      }
+      console.log(result)
+    }
+  }
 }
 </script>
 

@@ -1,24 +1,35 @@
 <template>
-  <form @submit.prevent="onSubmit()" class="card auth-card">
+  <form @submit.prevent="onSubmit" class="card auth-card">
     <div class="card-content">
       <span class="card-title">Домашняя бухгалтерия</span>
       <div class="input-field">
         <input
             id="email"
             type="text"
-            class="validate"
+            v-model.trim="email"
+            @blur="v$.email.$touch()"
+            :class="{'invalid': v$.email.$error}"
         >
         <label for="email">Email</label>
-        <small class="helper-text invalid">Email</small>
+        <small
+            v-if="v$.email.$error"
+            class="helper-text invalid">Введите корректно Email</small>
+        <small
+            v-else
+            class="helper-text invalid"></small>
       </div>
       <div class="input-field">
         <input
             id="password"
             type="password"
-            class="validate"
+            @blur="v$.password.$touch()"
+            v-model.trim ="password"
+            :class="{'invalid': (v$.password.$error)}"
         >
         <label for="password">Пароль</label>
-        <small class="helper-text invalid">Password</small>
+        <small
+            v-if="v$.password.$error"
+            class="helper-text invalid">Пароль минимум {{ v$.password.minLength.$params.min }} символов</small>
       </div>
     </div>
     <div class="card-action">
@@ -26,6 +37,7 @@
         <button
             class="btn waves-effect waves-light auth-submit"
             type="submit"
+
         >
           Войти
           <i class="material-icons right">send</i>
@@ -41,16 +53,63 @@
 </template>
 
 <script>
+import useVuelidate from  '@vuelidate/core'
+import { email, required, minLength } from '@vuelidate/validators'
+import messages from '../utils/messages'
+import { useAuth } from "../firebase"
+
 export default {
   name: "Login",
+  setup() {
+    const { isLogin, signIn } = useAuth()
+    return {
+      isLogin,
+      signIn,
+      v$: useVuelidate()
+    }
+  },
   data() {
     return {
-
+      email: '',
+      password: ''
+    }
+  },
+  validations () {
+    return {
+      email: { email, required },
+      password: { minLength: minLength(6), required }
+    }
+  },
+  mounted() {
+    if (messages[this.$route.query.message]) {
+      this.$message(messages[this.$route.query.message] )
     }
   },
   methods: {
-    onSubmit () {
-      this.$router.push('/')
+    async onSubmit () {
+      if (this.v$.$invalid) {
+        this.v$.$touch()
+        return
+      }
+      const formData = {
+        email: this.email,
+        password: this.password
+      }
+      const result = await this.signIn(formData.email, formData.password)
+      console.log(result)
+      if (result.code === "auth/user-not-found") {
+        this.$message(messages[result.code])
+        return
+      }
+      if (result.code === "auth/wrong-password") {
+        this.$message(messages[result.code])
+        return
+      }
+      if (result.user) {
+        this.$message(messages["login"])
+        this.$router.push('/')
+      }
+
     }
   }
 }

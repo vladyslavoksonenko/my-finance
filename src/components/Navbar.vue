@@ -40,8 +40,16 @@
 </template>
 
 <script>
+import { useAuth } from "../firebase";
+
+
 export default {
   name: "Navbar",
+  setup () {
+    const { user, signOut } = useAuth()
+
+    return { user, signOut }
+  },
   methods: {
     data () {
       return {
@@ -53,13 +61,14 @@ export default {
     toggleSidebar () {
       this.$emit('toggle-sidebar')
     },
-    logout () {
-      console.log("Logout")
-      this.$router.push('/login?message=logout')
+    async logout () {
+      await console.log(this.user)
+      await this.signOut()
+      await this.$router.push('/login?message=logout')
+      await console.log(this.user)
     }
   },
-  created() {
-     console.log("mounted")
+  mounted() {
     this.interval = setInterval(() => {
       this.date = new Date()
     }, 1000)
@@ -72,11 +81,6 @@ export default {
     clearInterval(this.interval)
     if (this.interval && this.dropdown.destroy) {
       this.dropdown.destroy()
-    }
-  },
-  watch: {
-    date() {
-
     }
   },
   computed: {
