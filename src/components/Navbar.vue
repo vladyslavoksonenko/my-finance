@@ -1,11 +1,11 @@
 <template>
-  <nav class="navbar orange lighten-1">
+  <nav class="navbar blue-grey lighten-4">
     <div class="nav-wrapper">
       <div class="navbar-left">
         <a @click.prevent="toggleSidebar" href="#">
           <i class="material-icons black-text">dehaze</i>
         </a>
-        <span class="black-text">{{ newDate }}</span>
+        <span class="black-text">{{ time }}</span>
       </div>
 
       <ul class="right hide-on-small-and-down">
@@ -16,7 +16,7 @@
               href="#"
               data-target="dropdown"
           >
-            USER NAME
+            {{ userName }}
             <i class="material-icons right">arrow_drop_down</i>
           </a>
 
@@ -41,19 +41,50 @@
 
 <script>
 import { useAuth } from "../firebase";
+import {onMounted} from "vue";
+import getTime from '../utils/clock.plugin'
 
 
 export default {
   name: "Navbar",
+  props: {
+    userName: String
+  },
   setup () {
-    const { user, signOut } = useAuth()
+    const { signOut, isLogin } = useAuth()
+    const { time } = getTime()
 
-    return { user, signOut }
+    console.log(getTime())
+    console.log(time.value)
+
+    // const option = {
+    //       year: "numeric",
+    //       month: "numeric",
+    //       day: "numeric",
+    //       hour: 'numeric',
+    //       minute: 'numeric',
+    //       second: 'numeric'
+    // }
+
+    onMounted(() => {
+      console.log(time)
+      // date.value = new Intl.DateTimeFormat('ua-UA', option).format(new Date())
+    })
+
+     // const time = computed(() => date.value)
+
+    return { signOut, isLogin, time }
+  },
+  computed: {
+    // localDate () {
+    //   return new Intl.DateTimeFormat('ua-UA', this.option).format(new Date())
+    // },
   },
   methods: {
     data () {
       return {
-        date: null,
+
+        // date: new Intl.DateTimeFormat('ua-UA', this.option).format(new Date()),
         interval: null,
         dropdown: null
       }
@@ -62,41 +93,24 @@ export default {
       this.$emit('toggle-sidebar')
     },
     async logout () {
-      await console.log(this.user)
       await this.signOut()
       await this.$router.push('/login?message=logout')
-      await console.log(this.user)
     }
   },
   mounted() {
-    this.interval = setInterval(() => {
-      this.date = new Date()
-    }, 1000)
-
     // eslint-disable-next-line no-undef
-   this.dropdown = M.Dropdown.init(this.$refs.dropDown)
+    this.dropdown = M.Dropdown.init(this.$refs.dropDown)
+
+    // this.interval = setInterval(() => {
+    //   this.date = new Intl.DateTimeFormat('ua-UA', this.option).format(new Date())
+    // }, 1000)
   },
   beforeUnmount() {
-    console.log("beforeUnmount")
-    clearInterval(this.interval)
+    // clearInterval(this.interval)
     if (this.interval && this.dropdown.destroy) {
       this.dropdown.destroy()
     }
   },
-  computed: {
-    newDate() {
-      const option = {
-        year: "numeric",
-        month: "numeric",
-        day: "numeric",
-        hour: 'numeric', minute: 'numeric', second: 'numeric',
-      }
-      console.log(new Intl.DateTimeFormat('ua-UA', option).format(this.date))
-      return new Intl.DateTimeFormat('ua-UA', option).format(this.date)
-    }
-  },
-  method: {
-  }
 }
 </script>
 <style scoped>

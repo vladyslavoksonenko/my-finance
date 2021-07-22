@@ -7,11 +7,12 @@
 import EmptyLayouts from './layouts/EmptyLayouts'
 import MainLayouts from './layouts/MainLayouts'
 
+
 export default {
   components: {EmptyLayouts, MainLayouts},
   computed: {
     layout() {
-      return (this.$route.meta.layout || 'em pty') + '-layouts'
+      return (this.$route.meta.layout || 'empty') + '-layouts'
     }
   }
 

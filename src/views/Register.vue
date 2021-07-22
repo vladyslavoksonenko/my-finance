@@ -74,8 +74,9 @@ import messages from "../utils/messages";
 export default {
   name: "Register",
   setup () {
-    const { signUp } = useAuth()
+    const { signUp, user } = useAuth()
     return {
+      user,
       signUp,
       v$: useVuelidate()
     }
@@ -102,17 +103,26 @@ export default {
         this.v$.$touch()
         return
       }
-      const dataRegisteration = {
+      const dataRegistration = {
         name: this.name,
         email: this.email,
         password: this.password
       }
-      const result = await this.signUp(dataRegisteration.name, dataRegisteration.email, dataRegisteration.password)
-      if (result.user) {
-        this.$message(messages["login"])
-        await this.$router.push('/')
-      }
+      const result = await this.signUp(dataRegistration.name, dataRegistration.email, dataRegistration.password)
+
       console.log(result)
+
+      if (result.user) {
+        this.$message(messages["welcom"])
+        this.$router.push('/')
+      }
+
+      for (let key in messages) {
+        if (result.code === key) {
+          this.$message(messages[result.code])
+          return
+        }
+      }
     }
   }
 }

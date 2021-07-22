@@ -1,12 +1,11 @@
 import firebase from "firebase";
-import 'firebase/auth';
-import 'firebase/database';
 
-import { ref, onUnmounted, computed } from "vue";
+import {ref, onUnmounted, computed} from "vue";
 
 firebase.initializeApp({
   apiKey: "AIzaSyDcUIkydrkmTxDZFdDB3rDK2AW3YZQtF6M",
   authDomain: "my-finance-f5194.firebaseapp.com",
+  databaseURL: "https://my-finance-f5194-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "my-finance-f5194",
   storageBucket: "my-finance-f5194.appspot.com",
   messagingSenderId: "331815896115",
@@ -16,15 +15,22 @@ firebase.initializeApp({
 
 const auth = firebase.auth()
 
+
 export function useAuth () {
+
   const user = ref(null)
+  const userData = ref(null)
+
   const unsubscribe = auth.onAuthStateChanged(_user => (user.value = _user))
   onUnmounted(unsubscribe)
+
   const isLogin = computed(() => user.value !== null)
 
   const signIn = async (email, password) => {
     try {
-      return await auth.signInWithEmailAndPassword(email, password)
+      const result = await auth.signInWithEmailAndPassword(email, password)
+      user.value = result
+      return result
     } catch (error) {
       return error
     }
@@ -34,12 +40,37 @@ export function useAuth () {
 
   const signUp = async (name, email, password) => {
     try {
-      return await auth.createUserWithEmailAndPassword(email, password)
+      const result = await auth.createUserWithEmailAndPassword(email, password)
+      user.value = await result.user
 
+      await firebase.database().ref(`users/${user.value.uid}/info`).set({
+        id: user.value.uid,
+        name: name,
+        email: email,
+        bill: 0
+      })
+      return result
     } catch (error) {
       return error
     }
   }
 
-  return { user, isLogin, signIn, signOut, signUp }
+  const getUid = async  () => {
+    const user = await auth.currentUser
+    return user ? user.uid : null
+  }
+
+  const getUserData = async () => {
+    const uid = await getUid()
+    const userDataV = await firebase.database().ref(`/users/${uid}/info/`).once('value')
+    const resultUserData = await userDataV.val()
+    userData.value = resultUserData
+    return resultUserData
+  }
+
+  const getUser = computed(() => userData.value)
+
+  return { user, isLogin, signIn, signOut, signUp, getUid, getUserData, userData, getUser}
 }
+
+

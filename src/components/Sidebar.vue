@@ -11,6 +11,8 @@
           :exact="link.exact"
           class="waves-effect waves-orange pointer"
         >
+          <i
+            class="small material-icons">{{ link.icon }}</i>
           {{ link.title }}
         </router-link>
       </li>
@@ -27,11 +29,11 @@ export default {
   data () {
     return {
       links: [
-        { title: 'Счет', url: '/', exact: true},
-        { title: 'История', url: '/history' },
-        { title: 'Планирование', url: '/planning' },
-        { title: 'Новая запись', url: '/new-entry' },
-        { title: 'Категории', url: '/categories' },
+        { title: 'Счет', url: '/', icon: 'payment', exact: true},
+        { title: 'История', url: '/history', icon: 'history' },
+        { title: 'Планирование', url: '/planning', icon: 'event_note' },
+        { title: 'Новая запись', url: '/new-entry', icon: 'open_in_new' },
+        { title: 'Категории', url: '/categories', icon: 'playlist_add_check' },
       ],
     }
   },

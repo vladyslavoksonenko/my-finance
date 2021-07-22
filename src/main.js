@@ -5,5 +5,6 @@ import 'materialize-css/dist/js/materialize.min'
 import messagePlugin from './utils/message.plugin'
 
 
+
 createApp(App).use(router).use(messagePlugin).mount('#app')
 

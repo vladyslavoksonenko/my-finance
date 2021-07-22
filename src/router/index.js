@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import firebase from "firebase";
 import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
@@ -14,7 +15,7 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    meta: {layout: 'main'},
+    meta: {layout: 'main', auth: true},
     component: Home
   },
   {
@@ -32,12 +33,13 @@ const routes = [
   {
     path: '/about',
     name: 'About',
-    meta: {layout: 'main'},
+    meta: {layout: 'main', auth: true},
     component: About
   },
   {
     path: '/404',
     name: '404',
+    meta: {layout: "main", auth: true},
     component: NotFound,
   },
   {
@@ -47,38 +49,56 @@ const routes = [
   {
     path: '/categories',
     name: 'Categories',
-    meta: {layout: 'main'},
+    meta: {layout: 'main', auth: true},
     component: Categories
   },
   {
     path: '/history',
     name: 'History',
-    meta: {layout: 'main'},
+    meta: {layout: 'main', auth: true},
     component: History
   },
   {
     path: '/planning',
     name: 'Planning',
-    meta: {layout: 'main'},
+    meta: {layout: 'main', auth: true},
     component: Planning
   },
   {
     path: '/new-entry',
     name: 'NewEntry',
-    meta: {layout: 'main'},
+    meta: {layout: 'main', auth: true},
     component: NewEntry
   },
   {
     path: '/profile',
     name: 'Profile',
-    meta: {layout: 'main'},
+    meta: {layout: 'main', auth: true},
     component: Profile
   },
 ]
+
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
 })
+
+router.beforeEach((to, from, next) => {
+  const currentUser = firebase.auth().currentUser
+  const requireAuth = to.matched.some(record => record.meta.auth)
+
+  if (requireAuth && !currentUser) {
+    next('/login?message=login')
+  } else {
+    next()
+  }
+})
+
+
+// router.beforeEach(async (to, from, next) => {
+//   const isAuth = await getUserState()
+//   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+// })
 
 export default router

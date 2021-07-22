@@ -61,9 +61,11 @@ import { useAuth } from "../firebase"
 export default {
   name: "Login",
   setup() {
-    const { isLogin, signIn } = useAuth()
+    const { user, isLogin, signIn } = useAuth()
+
     return {
       isLogin,
+      user,
       signIn,
       v$: useVuelidate()
     }
@@ -96,18 +98,17 @@ export default {
         password: this.password
       }
       const result = await this.signIn(formData.email, formData.password)
-      console.log(result)
-      if (result.code === "auth/user-not-found") {
-        this.$message(messages[result.code])
-        return
-      }
-      if (result.code === "auth/wrong-password") {
-        this.$message(messages[result.code])
-        return
-      }
+
       if (result.user) {
-        this.$message(messages["login"])
+        this.$message(messages["welcom"])
         this.$router.push('/')
+      }
+
+      for (let key in messages) {
+        if (result.code === key) {
+          this.$message(messages[result.code])
+          return
+        }
       }
 
     }
