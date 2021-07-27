@@ -5,7 +5,7 @@
         <a @click.prevent="toggleSidebar" href="#">
           <i class="material-icons black-text">dehaze</i>
         </a>
-        <span class="black-text">{{ time }}</span>
+        <span class="black-text">{{ dateTime }}</span>
       </div>
 
       <ul class="right hide-on-small-and-down">
@@ -41,7 +41,7 @@
 
 <script>
 import { useAuth } from "../firebase";
-import {onMounted} from "vue";
+import { onMounted } from "vue";
 import getTime from '../utils/clock.plugin'
 
 
@@ -52,39 +52,20 @@ export default {
   },
   setup () {
     const { signOut, isLogin } = useAuth()
-    const { time } = getTime()
+    const { dateTime } = getTime()
 
-    console.log(getTime())
-    console.log(time.value)
-
-    // const option = {
-    //       year: "numeric",
-    //       month: "numeric",
-    //       day: "numeric",
-    //       hour: 'numeric',
-    //       minute: 'numeric',
-    //       second: 'numeric'
-    // }
 
     onMounted(() => {
-      console.log(time)
-      // date.value = new Intl.DateTimeFormat('ua-UA', option).format(new Date())
+      return dateTime
     })
 
-     // const time = computed(() => date.value)
 
-    return { signOut, isLogin, time }
-  },
-  computed: {
-    // localDate () {
-    //   return new Intl.DateTimeFormat('ua-UA', this.option).format(new Date())
-    // },
+
+    return { signOut, isLogin, dateTime }
   },
   methods: {
     data () {
       return {
-
-        // date: new Intl.DateTimeFormat('ua-UA', this.option).format(new Date()),
         interval: null,
         dropdown: null
       }
@@ -101,9 +82,6 @@ export default {
     // eslint-disable-next-line no-undef
     this.dropdown = M.Dropdown.init(this.$refs.dropDown)
 
-    // this.interval = setInterval(() => {
-    //   this.date = new Intl.DateTimeFormat('ua-UA', this.option).format(new Date())
-    // }, 1000)
   },
   beforeUnmount() {
     // clearInterval(this.interval)

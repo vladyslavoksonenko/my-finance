@@ -1,6 +1,6 @@
 import firebase from "firebase";
 
-import {ref, onUnmounted, computed} from "vue";
+import {ref, onUnmounted, computed, onMounted} from "vue";
 
 firebase.initializeApp({
   apiKey: "AIzaSyDcUIkydrkmTxDZFdDB3rDK2AW3YZQtF6M",
@@ -16,7 +16,8 @@ firebase.initializeApp({
 const auth = firebase.auth()
 
 
-export function useAuth () {
+
+export const useAuth = () => {
 
   const user = ref(null)
   const userData = ref(null)
@@ -26,6 +27,7 @@ export function useAuth () {
 
   const isLogin = computed(() => user.value !== null)
 
+  // Login
   const signIn = async (email, password) => {
     try {
       const result = await auth.signInWithEmailAndPassword(email, password)
@@ -36,8 +38,10 @@ export function useAuth () {
     }
   }
 
+  // Log out
   const signOut = () => auth.signOut()
 
+    // register
   const signUp = async (name, email, password) => {
     try {
       const result = await auth.createUserWithEmailAndPassword(email, password)
@@ -55,12 +59,8 @@ export function useAuth () {
     }
   }
 
-  const getUid = async  () => {
-    const user = await auth.currentUser
-    return user ? user.uid : null
-  }
 
-  const getUserData = async () => {
+  const fetchUserData = async () => {
     const uid = await getUid()
     const userDataV = await firebase.database().ref(`/users/${uid}/info/`).once('value')
     const resultUserData = await userDataV.val()
@@ -68,9 +68,51 @@ export function useAuth () {
     return resultUserData
   }
 
-  const getUser = computed(() => userData.value)
 
-  return { user, isLogin, signIn, signOut, signUp, getUid, getUserData, userData, getUser}
+  return { user, isLogin, signIn, signOut, signUp, getUid, fetchUserData, userData}
 }
+
+// Получаю ID
+
+const getUid = async  () => {
+  const user = await auth.currentUser
+  return user ? user.uid : null
+}
+
+// Получаю Инфу из БД про Юзера
+
+export const getUserData = () => {
+
+  const userInfo = ref(null)
+
+  const fetching = async () => {
+    try {
+      const uid = await getUid()
+      const response = await firebase.database().ref(`/users/${uid}/info/`).once('value')
+      const responseData = await response.val()
+
+      userInfo.value = await responseData
+
+    } catch (e) {
+      alert("Error:")
+    }
+  }
+  onMounted(fetching)
+
+  return { userInfo, fetching }
+}
+
+export const createCategory = () => {
+
+}
+
+export const editCategory = () => {
+
+}
+
+export const getCategory = () => {
+
+}
+
 
 

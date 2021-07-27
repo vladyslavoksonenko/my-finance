@@ -1,6 +1,4 @@
 <template>
-  <Suspense>
-    <template #default>
   <div class="app-main-layout">
 
     <Navbar
@@ -27,21 +25,6 @@
       </router-link>
     </div>
   </div>
-    </template>
-    <template #fallback>
-      <div class="preloader-wrapper big active">
-        <div class="spinner-layer spinner-blue-only">
-          <div class="circle-clipper left">
-            <div class="circle"></div>
-          </div><div class="gap-patch">
-          <div class="circle"></div>
-        </div><div class="circle-clipper right">
-          <div class="circle"></div>
-        </div>
-        </div>
-      </div>
-    </template>
-  </Suspense>
 </template>
 
 <script>
@@ -50,34 +33,36 @@ import { useAuth } from "../firebase"
 
 
 
+
 export default {
   name: "mainLayouts",
   components: {
     Navbar: defineAsyncComponent(() => import('../components/Navbar.vue')),
-    Sidebar: defineAsyncComponent(() => import('../components/Sidebar'))
+    Sidebar: defineAsyncComponent(() => import('../components/Sidebar')),
   },
   emits: ["toggle-sidebar"],
 
   setup () {
-    const { user, isLogin, getUid, getUserData, userData } = useAuth()
+    const { user, isLogin, getUid, fetchUserData, userData } = useAuth()
     const userName = ref('name')
+
     onMounted(async () => {
         await getUid()
-        await getUserData()
+        await fetchUserData()
         userName.value = userData.value.name
-        console.log("user.value ")
-        console.log(typeof user.value)
-        console.log(user.value)
-        console.log("getUserData() ")
-        console.log(typeof getUserData)
-        console.log(getUserData())
-        console.log("UserData: ")
-        console.log(typeof userData.value)
-        console.log(userName.value)
+        // console.log("user.value ")
+        // console.log(typeof user.value)
+        // console.log(user.value)
+        // console.log("fetchUserData() ")
+        // console.log(typeof fetchUserData)
+        // console.log(fetchUserData())
+        // console.log("UserData: ")
+        // console.log(typeof userData.value)
+        // console.log(userName.value)
 
     })
 
-    return { user, isLogin, getUid, getUserData, userData, userName }
+    return { user, isLogin, getUid, fetchUserData, userData, userName }
   },
   data () {
     return {

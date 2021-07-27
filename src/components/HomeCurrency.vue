@@ -15,11 +15,13 @@
           </thead>
 
           <tbody>
-          <tr>
-            <td>руб</td>
-            <td>12121</td>
-            <td>12.12.12</td>
-          </tr>
+          <template :key="currency" v-for="currency in currencies">
+            <tr>
+              <td>{{ currency.cc }}</td>
+              <td>{{ currency.rate }}</td>
+              <td>{{ currency.exchangedate }}</td>
+            </tr>
+          </template>
           </tbody>
         </table>
       </div>
@@ -28,8 +30,13 @@
 </template>
 
 <script>
+
+
 export default {
-  name: "HomeCurrency"
+  name: "HomeCurrency",
+  props:['currencies']
+
+
 }
 </script>
 
