@@ -10,20 +10,20 @@
           <input
               id="name"
               type="text"
-              v-model="name"
+              v-model="stateCategoriesForm.name"
           >
           <label for="name">Название</label>
-          <span v-if="v.name.$error" class="helper-text invalid">Введите название</span>
+          <span v-if="v$.name.$error" class="helper-text invalid">Введите название</span>
         </div>
 
         <div class="input-field">
           <input
               id="limit"
               type="number"
-              v-model="limited"
+              v-model="stateCategoriesForm.limited"
           >
           <label for="limit">Лимит</label>
-          <span v-if="v.limited.$error" class="helper-text invalid">Минимальная величина</span>
+          <span v-if="v$.limited.$error" class="helper-text invalid">Минимальная величина</span>
         </div>
 
         <button class="btn waves-effect waves-light" type="submit">
@@ -36,26 +36,45 @@
 </template>
 
 <script>
-
-import { getValidateCategoriesForm } from "../use/useValidateCategoriesForm";
+import { createCategory } from "../firebase";
+import {reactive} from "vue";
+import {minLength, required} from "@vuelidate/validators";
+import useVuelidate from "@vuelidate/core";
+import message from "../utils/messages"
+import {message$} from "../utils/message.plugin";
 
 export default {
   name: "AddCategories",
-  async setup() {
-    const stateCategoriesForm = {
+  setup() {
+    const stateCategoriesForm = reactive({
       name: "",
       limited: ""
+    })
+    const rules = {
+      name: {required},
+      limited: {minLength: minLength(1)}
     }
-    const { v } = getValidateCategoriesForm(stateCategoriesForm.name, stateCategoriesForm.limited)
 
-    const addCategory = () => {
-      if (v.value.$invalid) {
-        v.value.$touch()
+    const v$ = useVuelidate(rules, stateCategoriesForm)
+
+    const addCategory = async () => {
+      if (v$.value.$invalid) {
+        v$.value.$touch()
+        return
       }
-      const result = await createCategory()
+      try {
+      const result = await createCategory(stateCategoriesForm.name, stateCategoriesForm.limited)
+      console.log(result)
+        message$(message["createCategory"])
+      } catch (e) {
+        alert(e)
+      } finally {
+        stateCategoriesForm.name = ""
+        stateCategoriesForm.limited = ""
+      }
     }
 
-    return { v, addCategory }
+    return { v$, addCategory, stateCategoriesForm }
   }
 
 }

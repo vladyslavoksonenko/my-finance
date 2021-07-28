@@ -10,10 +10,10 @@ const stateCategoriesForm = reactive({
 })
 const rules = {
   name: { required },
-  limited: { minLength: minLength(6) }
+  limited: { minLength: minLength(1) }
 }
-const v = useVuelidate(rules, stateCategoriesForm)
+const v$ = useVuelidate(rules, stateCategoriesForm)
 
-return { v }
+return { v$, stateCategoriesForm }
 
 }

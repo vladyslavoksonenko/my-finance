@@ -56,6 +56,7 @@
 import useVuelidate from  '@vuelidate/core'
 import { email, required, minLength } from '@vuelidate/validators'
 import messages from '../utils/messages'
+import { message$ } from '../utils/message.plugin'
 import { useAuth } from "../firebase"
 
 export default {
@@ -84,7 +85,7 @@ export default {
   },
   mounted() {
     if (messages[this.$route.query.message]) {
-      this.$message(messages[this.$route.query.message] )
+      message$(messages[this.$route.query.message] )
     }
   },
   methods: {
@@ -100,13 +101,13 @@ export default {
       const result = await this.signIn(formData.email, formData.password)
 
       if (result.user) {
-        this.$message(messages["welcom"])
+        message$(messages["welcom"])
         this.$router.push('/')
       }
 
       for (let key in messages) {
         if (result.code === key) {
-          this.$message(messages[result.code])
+          message$(messages[result.code])
           return
         }
       }

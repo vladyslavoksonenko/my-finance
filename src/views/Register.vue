@@ -69,6 +69,7 @@ import useVuelidate from "@vuelidate/core";
 import {minLength, email, required} from "@vuelidate/validators";
 import { useAuth } from "../firebase";
 import messages from "../utils/messages";
+import { message$ } from "../utils/message.plugin";
 
 
 export default {
@@ -113,13 +114,13 @@ export default {
       console.log(result)
 
       if (result.user) {
-        this.$message(messages["welcom"])
+        message$(messages["welcom"])
         this.$router.push('/')
       }
 
       for (let key in messages) {
         if (result.code === key) {
-          this.$message(messages[result.code])
+          message$(messages[result.code])
           return
         }
       }

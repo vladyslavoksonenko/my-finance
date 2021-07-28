@@ -17,11 +17,15 @@
 </template>
 
 <script>
-import AddCategories from "../components/AddCategories"
+import AddCategories from "../components/AddCategories";
 import EditCategories from "../components/EditCategories";
+
 export default {
   name: "Categories",
-  components: {EditCategories, AddCategories}
+  components: {
+    EditCategories,
+    AddCategories
+  }
 }
 
 </script>

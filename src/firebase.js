@@ -102,17 +102,49 @@ export const getUserData = () => {
   return { userInfo, fetching }
 }
 
-export const createCategory = () => {
-
+export const createCategory = async (title, limit) => {
+  try {
+    const uid = await getUid()
+    const category = await firebase.database().ref(`/users/${uid}/categories`).push({title, limit})
+    return { title, limit, id: category.key }
+  } catch (e) {
+    alert(e)
+    throw e
+  }
 }
 
-export const editCategory = () => {
+export const getCategories = async () => {
+  try {
+    const uid = await getUid()
+    const categories = await ((await firebase.database().ref(`/users/${uid}/categories`).once('value')).val()) || {}
 
+    return Object.keys(categories).map(key => ({...categories[key], id: key}))
+      // Одно и тоже (не забывай про спред)
+    // const resultCategories = []
+    // Object.keys(categories).forEach((key) => {
+    //   resultCategories.push({
+    //     title: categories[key].title,
+    //     limit: categories[key].limit,
+    //     id: key
+    //   })
+    // })
+    // return resultCategories
+
+  } catch (e) {
+    alert(e)
+    throw e
+  }
 }
 
-export const getCategory = () => {
-
+export const editCategory = async (id, title, limit) => {
+  try {
+    const uid = await getUid()
+    await firebase.database().ref(`/users/${uid}/categories/`).child(id).update({title, limit})
+  } catch (e) {
+    alert(e)
+  }
 }
+
 
 
 

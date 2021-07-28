@@ -18,7 +18,7 @@ export default {
   name: "HomeBill",
   props: {
     currencyValueArr: Array,
-    billUser: Object
+    billUser: Number
   },
 }
 </script>
