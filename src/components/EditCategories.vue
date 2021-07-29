@@ -17,19 +17,15 @@
             <option v-for="category in categories" v-bind:value="category.id" v-bind:key="category.id">{{ category.title }}</option>
           </select>
         </div>
-
+        <template v-if="isShowInputs">
         <div class="input-field">
           <input
               type="text"
-              id="name"
+              id="name-edit"
               v-model="stateCategoriesForm.name"
           />
-          <label for="name">Название</label>
-          <span
-              v-if="v$.name.$error"
-              class="helper-text invalid"
-          >
-            TITLE</span>
+<!--          <label for="name-edit">Новое название</label>-->
+          <span v-if="v$.name.$error" class="helper-text invalid">Введите имя</span>
         </div>
 
         <div class="input-field">
@@ -38,18 +34,18 @@
               type="number"
               v-model="stateCategoriesForm.limited"
           >
-          <label for="limit">Лимит</label>
+<!--          <label for="limit">Лимит</label>-->
           <span
               v-if="v$.limited.$error"
               class="helper-text invalid"
-          >
-            LIMIT</span>
+          >Введите лимит</span>
         </div>
 
         <button class="btn waves-effect waves-light" type="submit">
           Обновить
           <i class="material-icons right">send</i>
         </button>
+          </template>
       </form>
     </div>
   </div>
@@ -69,23 +65,31 @@ export default {
     const categories = ref(null)
     const selectCategories = ref(null)
     const currentIdCategory = ref(null)
+    const isShowInputs = ref(false)
     const stateCategoriesForm = reactive({
       name: "",
       limited: ""
     })
     const rules = {
-      name: {required},
-      limited: {minLength: minLength(1)}
+      name: { required },
+      limited: { minLength: minLength(1) }
     }
     const v$ = useVuelidate(rules, stateCategoriesForm)
 
     const edCategory = async () => {
+      if (v$.value.$invalid) {
+        v$.value.$touch()
+        return
+      }
       await editCategory(currentIdCategory.value, stateCategoriesForm.name, stateCategoriesForm.limited)
       gCategories()
       message$(message["editCategory"])
     }
 
     watch(currentIdCategory, () => {
+      if (currentIdCategory.value !== null) {
+        isShowInputs.value = true
+      }
       categories.value.forEach((category) => {
         if (category.id === currentIdCategory.value) {
           stateCategoriesForm.name = category.title
@@ -94,9 +98,7 @@ export default {
       })
     })
     const gCategories = async () => {
-      const categoriesPromisses = await getCategories()
-
-      categories.value = categoriesPromisses
+      categories.value = await getCategories()
 
       // eslint-disable-next-line no-undef
       selectCategories.value = M.FormSelect.init(selectCategories.value);
@@ -110,7 +112,7 @@ export default {
       }
     })
 
-    return { categories, selectCategories, v$, stateCategoriesForm, edCategory, currentIdCategory }
+    return { categories, selectCategories, v$, stateCategoriesForm, edCategory, currentIdCategory, isShowInputs }
 
   }
 

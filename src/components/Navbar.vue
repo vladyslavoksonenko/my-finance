@@ -41,7 +41,6 @@
 
 <script>
 import { useAuth } from "../firebase";
-import { onMounted } from "vue";
 import getTime from '../utils/clock.plugin'
 
 
@@ -54,10 +53,6 @@ export default {
     const { signOut, isLogin } = useAuth()
     const { dateTime } = getTime()
 
-
-    onMounted(() => {
-      return dateTime
-    })
 
 
 

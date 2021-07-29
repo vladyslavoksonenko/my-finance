@@ -6,13 +6,13 @@ const time = ref(null)
 
 
 
-  export default async function getTime () {
+  export default function getTime () {
     const result = getNow()
     dateTime.value = `${result.date} ${result.time}`
     date.value = result.date
     time.value = result.time
 
-    const interval = await setInterval(async () => {
+    const interval = setInterval(async () => {
        const result = getNow()
        dateTime.value = `${result.date} ${result.time}`
        date.value = result.date
@@ -24,8 +24,6 @@ const time = ref(null)
 
     return { dateTime, date, time }
   }
-
-
 
 
     const getNow = () => {

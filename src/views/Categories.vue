@@ -10,6 +10,7 @@
           <AddCategories />
           <EditCategories />
         </div>
+        <CollectionCategories />
       </section>
     </div>
 
@@ -19,10 +20,12 @@
 <script>
 import AddCategories from "../components/AddCategories";
 import EditCategories from "../components/EditCategories";
+import CollectionCategories from "../components/CollectionCategories";
 
 export default {
   name: "Categories",
   components: {
+    CollectionCategories,
     EditCategories,
     AddCategories
   }

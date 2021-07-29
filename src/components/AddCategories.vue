@@ -7,6 +7,10 @@
 
       <form @submit.prevent="addCategory">
         <div class="input-field">
+          <br>
+          <br>
+        </div>
+        <div class="input-field">
           <input
               id="name"
               type="text"
@@ -51,8 +55,8 @@ export default {
       limited: ""
     })
     const rules = {
-      name: {required},
-      limited: {minLength: minLength(1)}
+      name: { required },
+      limited: { minLength: minLength(1) }
     }
 
     const v$ = useVuelidate(rules, stateCategoriesForm)

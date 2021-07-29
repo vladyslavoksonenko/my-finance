@@ -1,13 +1,12 @@
-import {ref, onMounted, watch} from "vue";
+import {ref} from "vue";
 import getTime from "../utils/clock.plugin";
 
 
-export const useExRates = () => {
+export const useExRates = async () => {
 
-  const currencies = ref([])
+  const currencies = []
   const isLoadingCurrencies = ref(true)
 
-  const getExRates = async () => {
 
   const { date } = await getTime()
 
@@ -19,18 +18,13 @@ export const useExRates = () => {
   data.forEach((element) => {
     currenciesNameArr.forEach((cc) => {
       if (element.cc === cc) {
-        currencies.value.push(element)
+        currencies.push(element)
       }
     })
   })
 
-  }
 
-  onMounted(getExRates)
-  watch(currencies, getExRates)
-
-
-  return { currencies, isLoadingCurrencies }
+  return currencies
 
 }
 

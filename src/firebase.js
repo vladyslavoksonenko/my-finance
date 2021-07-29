@@ -1,6 +1,6 @@
 import firebase from "firebase";
 
-import {ref, onUnmounted, computed, onMounted} from "vue";
+import {ref, onUnmounted, computed} from "vue";
 
 firebase.initializeApp({
   apiKey: "AIzaSyDcUIkydrkmTxDZFdDB3rDK2AW3YZQtF6M",
@@ -28,6 +28,7 @@ export const useAuth = () => {
   const isLogin = computed(() => user.value !== null)
 
   // Login
+
   const signIn = async (email, password) => {
     try {
       const result = await auth.signInWithEmailAndPassword(email, password)
@@ -70,6 +71,7 @@ export const useAuth = () => {
 
 
   return { user, isLogin, signIn, signOut, signUp, getUid, fetchUserData, userData}
+
 }
 
 // Получаю ID
@@ -81,26 +83,18 @@ const getUid = async  () => {
 
 // Получаю Инфу из БД про Юзера
 
-export const getUserData = () => {
-
-  const userInfo = ref(null)
-
-  const fetching = async () => {
+export const getUserData = async () => {
     try {
       const uid = await getUid()
-      const response = await firebase.database().ref(`/users/${uid}/info/`).once('value')
-      const responseData = await response.val()
-
-      userInfo.value = await responseData
+      const userData = ( await firebase.database().ref(`/users/${uid}/info/`).once('value')).val()
+      return userData
 
     } catch (e) {
       alert("Error:")
     }
-  }
-  onMounted(fetching)
-
-  return { userInfo, fetching }
 }
+
+// Category
 
 export const createCategory = async (title, limit) => {
   try {
@@ -117,7 +111,6 @@ export const getCategories = async () => {
   try {
     const uid = await getUid()
     const categories = await ((await firebase.database().ref(`/users/${uid}/categories`).once('value')).val()) || {}
-
     return Object.keys(categories).map(key => ({...categories[key], id: key}))
       // Одно и тоже (не забывай про спред)
     // const resultCategories = []
@@ -144,6 +137,30 @@ export const editCategory = async (id, title, limit) => {
     alert(e)
   }
 }
+
+export const deletedCategories = async (id) => {
+  try {
+    const uid = await getUid()
+    await firebase.database().ref(`/users/${uid}/categories/`).child(id).remove()
+  } catch (e) {
+    alert(e)
+  }
+}
+
+// NewEntry
+
+export const newEntry = async (operation, resultOperation) => {
+  try {
+    const uid = await getUid()
+    console.log(resultOperation)
+    await firebase.database().ref(`/users/${uid}/info/`).update({bill: resultOperation})
+    await firebase.database().ref(`/users/${uid}/operations`).push({ ...operation })
+
+  } catch (e) {
+    alert(e)
+  }
+}
+
 
 
 
