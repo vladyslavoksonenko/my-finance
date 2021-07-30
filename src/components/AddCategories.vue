@@ -1,14 +1,12 @@
 <template>
-  <div class="col s12 m6">
-    <div>
+  <div class="col s12">
+    <div class="z-depth-2 category-block">
       <div class="page-subtitle">
         <h4>Создать</h4>
       </div>
 
       <form @submit.prevent="addCategory">
         <div class="input-field">
-          <br>
-          <br>
         </div>
         <div class="input-field">
           <input
@@ -36,6 +34,7 @@
         </button>
       </form>
     </div>
+    <br>
   </div>
 </template>
 
@@ -49,7 +48,7 @@ import {message$} from "../utils/message.plugin";
 
 export default {
   name: "AddCategories",
-  setup() {
+  setup(props, { emit }) {
     const stateCategoriesForm = reactive({
       name: "",
       limited: ""
@@ -75,6 +74,7 @@ export default {
       } finally {
         stateCategoriesForm.name = ""
         stateCategoriesForm.limited = ""
+        emit('close-create-category', false)
       }
     }
 
@@ -85,5 +85,8 @@ export default {
 </script>
 
 <style scoped>
-
+.category-block {
+  padding: 20px;
+  min-height: 282px;
+}
 </style>

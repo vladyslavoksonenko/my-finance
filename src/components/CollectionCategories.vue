@@ -1,45 +1,46 @@
 <template>
   <div class="row">
-    <ul class="collection">
+    <table class="highlight centered">
+      <thead>
+      <tr>
+        <th>Имя</th>
+        <th>Лимит</th>
+        <th>Редактировать</th>
+        <th>Удалить</th>
+      </tr>
+      </thead>
+
+      <tbody>
       <template v-for="category in categories" :key="category.id">
-        <li class="collection-item row">
-          <h6 class="col s11">{{ category.title }}</h6>
-          <a @click="dCategory(category)" class="waves-effect col s1 waves-light btn-small right"><i class="material-icons center">deleted</i></a>
-        </li>
+        <tr>
+          <td>{{ category.title }}</td>
+          <td>{{ category.limit }}</td>
+          <td>
+            <a @click="$emit('open-edit-category', true, category.id)" class="waves-effect waves-yellow btn-small">Edit</a>
+          </td>
+          <td>
+            <a @click="$emit('open-deleted-category', category.id)" class="waves-effect waves-red btn-small">Deleted</a>
+          </td>
+        </tr>
       </template>
-    </ul>
+      </tbody>
+    </table>
   </div>
 </template>
 
 <script>
-import {computed, onMounted, ref, watch} from "vue";
-import {getCategories, deletedCategories} from "../firebase";
+
 
 export default {
   name: "CollectionCategories",
+  props: {
+    categories: Array
+  },
   setup () {
-    const categories = ref(null)
 
-    const gCategories = async () => {
-      categories.value = await getCategories()
-    }
 
-    const dCategory = async (category) => {
-      console.log("click Deleted")
-      console.log(category)
-      categories.value = categories.value.filter((itemCategory) => itemCategory.id !== category.id)
-      await deletedCategories(category.id)
-    }
 
-    onMounted(gCategories)
-
-    computed(() => dCategory)
-
-    watch(categories)
-
-    // watch(getCategories, gCategories)
-
-    return { categories, dCategory }
+    return {  }
   }
 
 }
