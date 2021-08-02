@@ -6,7 +6,7 @@
         <h3>Новая запись</h3>
       </div>
 
-      <form @submit.prevent="onSubmit" class="form">
+      <form @submit.prevent.stop="onSubmit" class="form z-depth-1">
         <label>Выберите категорию</label>
         <div class="input-field">
           <select ref="selectCategories"
@@ -16,7 +16,7 @@
             <option value="" disabled selected>Выберите категорию</option>
             <option
                 v-for="category in categories"
-                v-bind:value="category.id"
+                v-bind:value="category"
                 v-bind:key="category.id"
             >{{ category.title }}</option>
           </select>
@@ -91,7 +91,7 @@ import {onMounted, reactive, ref} from "vue";
 import {getCategories, getUserData, newEntry} from "../firebase";
 import useVuelidate from "@vuelidate/core";
 import {required} from "@vuelidate/validators";
-import getTime from "../utils/clock.plugin";
+// import getTime from "../utils/clock.plugin";
 import {message$} from "../utils/message.plugin";
 import messages from "../utils/messages"
 
@@ -110,7 +110,7 @@ export default {
       description: null,
       date: null,
     })
-    const { dateTime } = getTime()
+    // const { dateTime } = getTime()
 
     const rules = {
       sum: { required },
@@ -127,9 +127,6 @@ export default {
       selectCategories.value = M.FormSelect.init(selectCategories.value);
       // eslint-disable-next-line no-undef
       datepicker.value = M.Datepicker.init(datepicker.value, {
-        defaultDate: Date.now(),
-        setDefaultDate:  true,
-        firstDay: 1,
         format: 'yyyy mm dd',
         autoClose: true
       });
@@ -145,7 +142,7 @@ export default {
         v$.value.$touch()
         return
       }
-      stateOperationForm.date = dateTime.value
+      // stateOperationForm.date = dateTime.value
 
       if (stateOperationForm.type === "outcome") {
         const resultOperation = Number(userInfo.bill) - Number(stateOperationForm.sum);
@@ -155,9 +152,9 @@ export default {
       }
 
       if (stateOperationForm.type === "income") {
-        message$(`${messages["addEntry-income"]} ${stateOperationForm.sum} UAH`)
         const resultOperation = Number(userInfo.bill) + Number(stateOperationForm.sum);
         await newEntry(stateOperationForm, resultOperation)
+        message$(`${messages["addEntry-income"]} ${stateOperationForm.sum} UAH`)
         setTimeout(() => {clearStateOperationForm()}, 500)
       }
 
@@ -175,5 +172,9 @@ export default {
 </script>
 
 <style scoped>
-
+.form {
+  margin: auto;
+  border: 1px solid #e6e6e6;
+  padding: 20px 15px;
+}
 </style>

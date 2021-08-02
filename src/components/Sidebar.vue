@@ -1,5 +1,5 @@
 <template>
-  <ul class="sidenav app-sidenav"
+  <ul ref="sidenav" class="sidenav app-sidenav"
    :class="{'open': isToggleSidebar}"
   >
     <template v-for:="link in links">
@@ -21,10 +21,23 @@
 </template>
 
 <script>
+import {onMounted, ref} from "vue";
+
 export default {
   name: "Sidebar",
   props: {
     isToggleSidebar: Boolean
+  },
+  setup () {
+    const sidenav = ref(null)
+
+    onMounted(() => {
+
+      // eslint-disable-next-line no-undef
+      let sidenav = M.Sidenav.init(sidenav);
+    })
+
+    return { sidenav }
   },
   data () {
     return {

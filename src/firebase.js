@@ -152,9 +152,19 @@ export const deletedCategories = async (id) => {
 export const newEntry = async (operation, resultOperation) => {
   try {
     const uid = await getUid()
-    console.log(resultOperation)
     await firebase.database().ref(`/users/${uid}/info/`).update({bill: resultOperation})
     await firebase.database().ref(`/users/${uid}/operations`).push({ ...operation })
+
+  } catch (e) {
+    alert(e)
+  }
+}
+
+export const getEntries = async () => {
+  try {
+    const uid = await getUid()
+    const operations = await ((await firebase.database().ref(`/users/${uid}/operations`).once('value')).val()) || {}
+    return Object.keys(operations).map(key => ({...operations[key], id: key}))
 
   } catch (e) {
     alert(e)

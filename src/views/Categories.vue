@@ -1,6 +1,5 @@
 <template>
   <div class="app-page">
-
     <div>
       <div class="page-title">
         <h3>Категории</h3>
