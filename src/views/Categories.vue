@@ -12,29 +12,40 @@
           <i class="material-icons">add</i>
         </a>
       </div>
-      <section>
+      <template v-if="loading">
+        <Loader />
+      </template>
+      <section v-else>
         <div class="row">
           <template v-if="isOpenCreateCategory">
             <AddCategories
                 @close-create-category="toggleCreateCategory"
             />
           </template>
-          <template v-if="isOpenEditCategory">
-            <EditCategories
-                :categories="categories"
-                :editCategoryId="editCategoryId"
-                @close-edit-category="toggleEditCategory"
-            />
+          <template v-if="categories !== null">
+            <template v-if="isOpenEditCategory">
+              <EditCategories
+                  v-if="categories"
+                  :categories="categories"
+                  :editCategoryId="editCategoryId"
+                  @close-edit-category="toggleEditCategory"
+              />
+            </template>
           </template>
         </div>
+          <template v-if="categories === null || !categories.length">
+            <div class="row center">
+              Создайте категорию!
+            </div>
+          </template>
           <CollectionCategories
+              v-else
               :categories="categories"
               @open-edit-category="toggleEditCategory"
               @open-deleted-category="dCategory"
           />
       </section>
     </div>
-
   </div>
 </template>
 
@@ -44,10 +55,12 @@ import EditCategories from "../components/EditCategories";
 import CollectionCategories from "../components/CollectionCategories";
 import {computed, onMounted, ref, watch} from "vue"
 import {deletedCategories, getCategories} from "../firebase";
+import Loader from "../components/Loader";
 
 export default {
   name: "Categories",
   components: {
+    Loader,
     CollectionCategories,
     EditCategories,
     AddCategories
@@ -56,6 +69,7 @@ export default {
 
     // Show
 
+    const loading = ref(true)
     const isOpenCreateCategory = ref(false)
     const isOpenEditCategory = ref(false)
     const editCategoryId = ref(null)
@@ -82,6 +96,10 @@ export default {
 
     const gCategories = async () => {
       categories.value = await getCategories()
+      if (!categories.value.length || categories.value === null) {
+        isOpenCreateCategory.value = true
+      }
+      loading.value = false
     }
 
     const dCategory = async (categoryId) => {
@@ -106,7 +124,8 @@ export default {
       toggleEditCategory,
       toggleCreateCategory,
       categories,
-      dCategory
+      dCategory,
+      loading
     }
   }
 

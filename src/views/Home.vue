@@ -7,14 +7,14 @@
       </button>
     </div>
     <div class="row">
-      <template v-if="!isLoadingCurrencies">
+      <template v-if="isLoadingCurrencies">
+        <Loader />
+      </template>
+      <template v-else>
 <!--       :userInfo="userInfo.bill" *1-->
       <HomeBill :currencyValueArr="currencyValue" :billUser="billUser" />
       <HomeCurrency :currencies="currencies" />
      </template>
-      <template v-else-if="isLoadingCurrencies">
-        <Loader />
-      </template>
     </div>
   </div>
 </template>

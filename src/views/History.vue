@@ -5,7 +5,15 @@
         <div class="page-title">
           <h3>История</h3>
         </div>
-        <div class="history-table">
+        <template v-if="loading">
+          <Loader />
+        </template>
+        <template v-else-if="operations === null || !operations.length">
+          <div class="row center">
+            Сначала <router-link to="/new-entry">создайте запись!</router-link>
+          </div>
+        </template>
+        <div v-else class="history-table">
           <table class="highlight responsive-table">
             <thead>
             <tr>
@@ -82,13 +90,19 @@
 <script>
 import {onMounted, ref, watch, reactive} from "vue";
 import {getEntries} from "../firebase";
+import Loader from "../components/Loader";
+
 
 export default {
   name: "History",
+  components: {
+    Loader
+  },
   setup () {
+    const loading = ref(true)
     const selectTable = ref(null)
-    const operations = ref([])
-    const pageSize = ref(10)
+    const operations = ref(null)
+    const pageSize = ref(100)
     const groupsOperation = ref([])
     const pageNumber = ref(0)
     const paginatedData = ref(null)
@@ -99,10 +113,17 @@ export default {
 
     const gOperations = async () => {
       operations.value = await getEntries()
-      initPaginated()
-      getPageAmount()
+      loading.value = false
+      initSortOperations()
       // getSelectList()
     }
+
+    const initSortOperations = () => {
+      chooseSortTable()
+      initPaginated()
+      getPageAmount()
+    }
+
     onMounted(gOperations)
 
     const nextPage = () => {
@@ -111,7 +132,6 @@ export default {
     const prevPage = () => {
       pageNumber.value--
     }
-
 
     const getPageCount = () => {
       let l = paginatedData.value.length
@@ -128,6 +148,17 @@ export default {
       }
     }
 
+    const initPaginated = () => {
+      let start = pageNumber.value * pageSize.value
+      let end = start + pageSize.value
+
+      paginatedData.value = operations.value.slice(start, end);
+      getPageCount()
+    }
+
+    watch(pageNumber, initPaginated)
+    watch(pageSize, initPaginated)
+
     // const getSelectList = () => {
     //   if (operations.value.length / 10 >= 1) {
     //     selectList.value.push(10)
@@ -141,26 +172,6 @@ export default {
     //   selectList.value.push(operations.value.length)
     //   getPageAmount()
     // }
-
-
-    const initPaginated = () => {
-      let start = pageNumber.value * pageSize.value
-      let end = start + pageSize.value
-
-       paginatedData.value = operations.value.slice(start, end);
-      getPageCount()
-    }
-
-    watch(pageNumber, initPaginated)
-    watch(pageSize, initPaginated)
-
-
-    const initMSelect = () => {
-      // eslint-disable-next-line no-undef
-      selectTable.value = M.FormSelect.init(selectTable.value);
-    }
-    onMounted(initMSelect)
-
 
     // Sorting
 
@@ -193,12 +204,15 @@ export default {
           switch (item.status) {
             case "none":
               item.status = "down"
+              chooseSortTable()
               break;
             case "down":
               item.status = "up"
+              chooseSortTable()
               break;
             case "up":
               item.status = "none"
+              chooseSortTable()
               break;
           }
         } else {
@@ -207,22 +221,65 @@ export default {
       }
     }
 
-    const sortTable = () => {
+    const chooseSortTable = () => {
       for (let key in typeSorting) {
         if (typeSorting[key].status !== "none") {
-          console.log(typeSorting[key])
+          const result = typeSorting[key]
+          sortTable(result)
         } else {
-          console.log(typeSorting[key])
-          console.log(typeSorting[key])
+          // console.log(typeSorting[key])
         }
 
       }
     }
 
-    watch(typeSorting, sortTable)
+    const sortTable = (selectedTypeSort) => {
+      console.log(selectedTypeSort)
+      switch(selectedTypeSort.title) {
+        case "Категории":
+          console.log(selectedTypeSort.status)
+          if (selectedTypeSort.status === "up") {
+            operations.value = operations.value.sort((a, b) => {
+              const prevTitle = a.category.title.toUpperCase()
+              const nextTitle = b.category.title.toUpperCase()
+              if (prevTitle > nextTitle) {
+                return -1
+              }
+              if (prevTitle < nextTitle) {
+                return 1
+              }
+              return 0
+            })
+          } else if (selectedTypeSort === "down") {
+            operations.value = operations.value.sort((a, b) => {
+              const prevTitle = a.category.title.toUpperCase()
+              const nextTitle = b.category.title.toUpperCase()
+              if (prevTitle < nextTitle) {
+                return -1
+              }
+              if (prevTitle > nextTitle) {
+                return 1
+              }
+              return 0
+            })
+          }
+          break;
+        // case "Сумма":
 
+      }
+    }
+
+    watch(typeSorting, chooseSortTable)
+    //watch(typeSorting, initSortOperations)
+
+    const initMSelect = () => {
+      // eslint-disable-next-line no-undef
+      selectTable.value = M.FormSelect.init(selectTable.value);
+    }
+    onMounted(initMSelect)
 
     return {
+      loading,
       selectTable,
       pageSize,
       groupsOperation,
@@ -234,7 +291,8 @@ export default {
       pageAmount,
       selectList,
       typeSorting,
-      toggleSort
+      toggleSort,
+      operations
 
     }
   }

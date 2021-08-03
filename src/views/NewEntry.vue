@@ -5,8 +5,13 @@
       <div class="page-title">
         <h3>Новая запись</h3>
       </div>
-
-      <form @submit.prevent.stop="onSubmit" class="form z-depth-1">
+      <template v-if="loading">
+        <Loader />
+      </template>
+      <div class="row center" v-else-if="categories === null || !categories.length">
+        Сначала <router-link to="/categories">создайте категорию!</router-link>
+      </div>
+      <form v-else @submit.prevent.stop="onSubmit" class="form z-depth-1">
         <label>Выберите категорию</label>
         <div class="input-field">
           <select ref="selectCategories"
@@ -52,7 +57,7 @@
           <input
               id="amount"
               type="number"
-              v-model="stateOperationForm.sum"
+              v-model.trim.number="stateOperationForm.sum"
           >
           <label for="amount">Сумма</label>
           <span v-if="v$.sum.$error" class="helper-text invalid">Введите сумму</span>
@@ -93,12 +98,18 @@ import useVuelidate from "@vuelidate/core";
 import {required} from "@vuelidate/validators";
 // import getTime from "../utils/clock.plugin";
 import {message$} from "../utils/message.plugin";
-import messages from "../utils/messages"
+import messages from "../utils/messages";
+import Loader from "../components/Loader";
+
 
 
 export default {
   name: "NewEntry",
+  components: {
+    Loader,
+  },
   setup () {
+    const loading = ref(true)
     const datepicker = ref(null)
     const selectCategories = ref(null)
     const currentIdCategory = ref(null)
@@ -130,6 +141,7 @@ export default {
         format: 'yyyy mm dd',
         autoClose: true
       });
+      loading.value = false
 
     }
 
@@ -166,7 +178,7 @@ export default {
       }
     }
 
-    return {datepicker, selectCategories, currentIdCategory, categories, stateOperationForm, v$, onSubmit}
+    return {datepicker, selectCategories, currentIdCategory, categories, stateOperationForm, v$, onSubmit, loading}
   }
 }
 </script>
