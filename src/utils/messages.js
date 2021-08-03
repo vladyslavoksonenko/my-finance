@@ -7,8 +7,10 @@ export default {
   "auth/email-already-in-use" : "Этот Email уже зарегистрирован!",
   "createCategory" : "Категория была создана!",
   "editCategory" : "Категория была отредактирована!",
+  "deletedCategory" : "Категория была удалена!",
   "addEntry-outcome" : "Ваш расход:",
   "addEntry-income" : "Ваш доход успешно добавлен:"
+
 
 
 }

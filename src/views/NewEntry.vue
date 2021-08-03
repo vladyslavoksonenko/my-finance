@@ -73,10 +73,10 @@
           <span v-if="v$.description.$error" class="helper-text invalid">Введите описание</span>
         </div>
         <div class="input-field">
-          <input type="text"
+          <input type="date"
                  class="datepicker"
                  ref="datepicker"
-                 v-model.lazy="stateOperationForm.date"
+                 v-model="stateOperationForm.date"
           >
           <label for="description">Дата</label>
           <span v-if="v$.date.$error" class="helper-text invalid">Нужно выбрать дату</span>
@@ -95,9 +95,9 @@
 import {onMounted, reactive, ref} from "vue";
 import {getCategories, getUserData, newEntry} from "../firebase";
 import useVuelidate from "@vuelidate/core";
-import {required} from "@vuelidate/validators";
-// import getTime from "../utils/clock.plugin";
-import {message$} from "../utils/message.plugin";
+import { required } from "@vuelidate/validators";
+import getTime from "../utils/clock.plugin";
+import { message$ } from "../utils/message.plugin";
 import messages from "../utils/messages";
 import Loader from "../components/Loader";
 
@@ -114,14 +114,14 @@ export default {
     const selectCategories = ref(null)
     const currentIdCategory = ref(null)
     const categories = ref(null)
+    const { yearMonthDay } = getTime()
     const stateOperationForm = reactive({
       category: null,
       type: "outcome",
-      sum: null,
+      sum: 0,
       description: null,
-      date: null,
+      date: yearMonthDay,
     })
-    // const { dateTime } = getTime()
 
     const rules = {
       sum: { required },
@@ -133,15 +133,15 @@ export default {
 
     const gCategories = async () => {
       categories.value = await getCategories()
+      loading.value = false
 
       // eslint-disable-next-line no-undef
       selectCategories.value = M.FormSelect.init(selectCategories.value);
       // eslint-disable-next-line no-undef
-      datepicker.value = M.Datepicker.init(datepicker.value, {
-        format: 'yyyy mm dd',
-        autoClose: true
-      });
-      loading.value = false
+      // datepicker.value = M.Datepicker.init(datepicker.value, {
+      //   format: 'yyyy mm dd',
+      //   autoClose: true
+      // });
 
     }
 
@@ -174,11 +174,14 @@ export default {
 
     const clearStateOperationForm = () => {
       for (const key in stateOperationForm ) {
+        if (key === "date") {
+          stateOperationForm[key] = yearMonthDay
+        }
         stateOperationForm[key] = null
       }
     }
 
-    return {datepicker, selectCategories, currentIdCategory, categories, stateOperationForm, v$, onSubmit, loading}
+    return { datepicker, selectCategories, currentIdCategory, categories, stateOperationForm, v$, onSubmit, loading }
   }
 }
 </script>

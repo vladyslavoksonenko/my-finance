@@ -3,6 +3,8 @@ import {ref, onUnmounted} from "vue";
 const dateTime = ref(null)
 const date = ref(null)
 const time = ref(null)
+let yearMonth = null
+let yearMonthDay = null
 
 
 
@@ -17,12 +19,14 @@ const time = ref(null)
        dateTime.value = `${result.date} ${result.time}`
        date.value = result.date
        time.value = result.time
+      yearMonth = result.date.toString().slice(0, -3).replace(/ /g, '-')
+      yearMonthDay = result.date.toString().replace(/ /g, '-')
     }, 1000)
 
     onUnmounted(() => clearInterval(interval))
 
 
-    return { dateTime, date, time }
+    return { dateTime, date, time, yearMonth, yearMonthDay }
   }
 
 

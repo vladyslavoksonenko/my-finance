@@ -6,6 +6,9 @@
       <div class="page-title">
         <h3>Планирование</h3>
         <h4>{{ `${billUser} UAH `}}</h4>
+        <div>
+          <input type="month" v-model="currentDateMonth">
+        </div>
       </div>
       <template v-if="loading">
         <Loader />
@@ -17,12 +20,13 @@
         <div :key="category.id" v-for="category in categories">
           <p>
             <strong>{{category.title}}:</strong>
-            12 122 из {{ category.limit }}
+            {{category.spend}} из {{ category.limit }}
           </p>
           <div class="progress">
             <div
-              class="determinate green"
-              style="width:40%"
+              class="determinate"
+              :class="category.lineColor"
+              :style="`width:${category.lineWidth}%`"
             ></div>
           </div>
         </div>
@@ -34,7 +38,8 @@
 
 <script>
 import {getUserData, getEntries, getCategories} from "../firebase";
-import {onMounted, ref} from "vue";
+import {onMounted, ref, watch} from "vue";
+import getTime from "../utils/clock.plugin";
 import Loader from "../components/Loader";
 
 
@@ -49,6 +54,10 @@ export default {
     const operations = ref(null)
     const categories = ref(null)
     const resultPlaning = ref([])
+    const { yearMonth } = getTime()
+    const currentDateMonth = ref(null)
+
+    currentDateMonth.value = yearMonth
 
     const getUserBill = async () => {
       const userData = await getUserData()
@@ -57,34 +66,55 @@ export default {
       operations.value = await getEntries()
       categories.value = await getCategories()
 
+      operations.value = operations.value.filter(op => {
+        const dateMonth = op.date.toString().slice(0, -3)
+        if (dateMonth === currentDateMonth.value) {
+          return op
+        }
+      })
+
+      getLine();
+
       loading.value = false
 
+    }
+    const getLine = () => {
       categories.value = categories.value.map((category) => {
-        let result = null
         const spend = operations.value.filter(op => category.id === op.category.id)
             .filter(op => op.type === "outcome")
             .reduce((accumulator, current) => {
-              result = Number(accumulator) + Number(current)
-              console.log(result)
-              return Number(accumulator.sum) + Number(current.sum)
+              const acc = Number(accumulator)
+              const curr = Number(current.sum)
+              return acc + curr
             }, 0)
-        return {...category, spend }
-      })
-      await console.log(categories.value)
-    }
-    onMounted(getUserBill)
 
-    // const gAll = async () => {
-    //
-    // }
-    // onMounted(gAll)
+        const lineWidth = Number(spend) / Number(category.limit) * 100
+
+        let lineColor = ''
+        if (lineWidth >= 100) {
+          lineColor = 'red'
+        } else if (lineWidth > 60) {
+          lineColor = 'yellow'
+        } else {
+          lineColor = 'green'
+        }
+
+        return {...category, spend, lineWidth, lineColor}
+      })
+    }
+
+    onMounted(getUserBill)
+    watch(currentDateMonth, () => {
+      getUserBill()
+    })
 
     return {
       loading,
       billUser,
       categories,
       resultPlaning,
-      operations
+      operations,
+      currentDateMonth
     }
   }
 }

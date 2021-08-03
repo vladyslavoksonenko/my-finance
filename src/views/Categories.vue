@@ -7,7 +7,7 @@
            data-position="left"
            data-tooltip="Создать категорию"
            ref="openCreateCategory"
-           @click="opentTooltip"
+           @click="openTooltip"
         >
           <i class="material-icons">add</i>
         </a>
@@ -56,6 +56,8 @@ import CollectionCategories from "../components/CollectionCategories";
 import {computed, onMounted, ref, watch} from "vue"
 import {deletedCategories, getCategories} from "../firebase";
 import Loader from "../components/Loader";
+import {message$} from "../utils/message.plugin";
+import messages from "../utils/messages";
 
 export default {
   name: "Categories",
@@ -76,7 +78,7 @@ export default {
     const openCreateCategory = ref(null)
     const categories = ref(null)
 
-    const opentTooltip = () => {
+    const openTooltip = () => {
       isOpenCreateCategory.value = true
       // eslint-disable-next-line no-undef
       openCreateCategory.value = M.Tooltip.init(openCreateCategory.value);
@@ -105,6 +107,7 @@ export default {
     const dCategory = async (categoryId) => {
       categories.value = categories.value.filter((itemCategory) => itemCategory.id !== categoryId)
       await deletedCategories(categoryId)
+      message$(messages["deletedCategory"])
     }
 
     onMounted(gCategories)
@@ -120,7 +123,7 @@ export default {
       isOpenEditCategory,
       editCategoryId,
       openCreateCategory,
-      opentTooltip,
+      openTooltip,
       toggleEditCategory,
       toggleCreateCategory,
       categories,
