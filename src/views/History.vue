@@ -188,18 +188,39 @@ export default {
     })
 
     const toggleSort = (item) => {
-      switch (item.status) {
-        case "none":
-          item.status = "up"
-          break;
-        case "up":
-          item.status = "down"
-          break;
-        case "down":
-          item.status = "none"
-          break;
+      for (let key in typeSorting) {
+        if (typeSorting[key] === item) {
+          switch (item.status) {
+            case "none":
+              item.status = "down"
+              break;
+            case "down":
+              item.status = "up"
+              break;
+            case "up":
+              item.status = "none"
+              break;
+          }
+        } else {
+          typeSorting[key].status = "none"
+        }
       }
     }
+
+    const sortTable = () => {
+      for (let key in typeSorting) {
+        if (typeSorting[key].status !== "none") {
+          console.log(typeSorting[key])
+        } else {
+          console.log(typeSorting[key])
+          console.log(typeSorting[key])
+        }
+
+      }
+    }
+
+    watch(typeSorting, sortTable)
+
 
     return {
       selectTable,
