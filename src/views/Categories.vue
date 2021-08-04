@@ -17,20 +17,24 @@
       </template>
       <section v-else>
         <div class="row">
-          <template v-if="isOpenCreateCategory">
-            <AddCategories
-                @close-create-category="toggleCreateCategory"
-            />
-          </template>
-          <template v-if="categories !== null">
-            <template v-if="isOpenEditCategory">
-              <EditCategories
-                  v-if="categories"
-                  :categories="categories"
-                  :editCategoryId="editCategoryId"
-                  @close-edit-category="toggleEditCategory"
+          <transition name="categoryCreate">
+            <template v-if="isOpenCreateCategory">
+              <AddCategories
+                  @close-create-category="toggleCreateCategory"
               />
             </template>
+          </transition>
+          <template v-if="categories !== null">
+            <transition name="categoryCreate">
+              <template v-if="isOpenEditCategory">
+                <EditCategories
+                    v-if="categories"
+                    :categories="categories"
+                    :editCategoryId="editCategoryId"
+                    @close-edit-category="toggleEditCategory"
+                />
+              </template>
+            </transition>
           </template>
         </div>
           <template v-if="categories === null || !categories.length">
@@ -137,5 +141,13 @@ export default {
 </script>
 
 <style scoped>
+
+.categoryCreate-enter-active, .categoryCreate-leave-active {
+  transition: all .5s ease-out;
+}
+.categoryCreate-enter, .categoryCreate-leave-to /* .fade-leave-active до версии 2.1.8 */ {
+  transform: translateY(20px);
+  opacity: 0;
+}
 
 </style>

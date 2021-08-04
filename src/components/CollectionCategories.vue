@@ -9,10 +9,8 @@
         <th>Удалить</th>
       </tr>
       </thead>
-
-      <tbody>
-      <template v-for="category in categories" :key="category.id">
-        <tr>
+      <transition-group name="listOperations" tag="tbody">
+        <tr v-for="category in categories" :key="category.id">
           <td>{{ category.title }}</td>
           <td>{{ category.limit }}</td>
           <td>
@@ -22,8 +20,7 @@
             <a @click="$emit('open-deleted-category', category.id)" class="waves-effect waves-red btn-small">Deleted</a>
           </td>
         </tr>
-      </template>
-      </tbody>
+      </transition-group>
     </table>
   </div>
 </template>
@@ -36,16 +33,23 @@ export default {
   props: {
     categories: Array
   },
-  setup () {
-
-
-
-    return {  }
-  }
-
 }
 </script>
 
 <style scoped>
+
+/*.listCategories-item {*/
+/*  display: inline-block;*/
+/*  margin-right: 10px;*/
+/*}*/
+.listCategories-enter-active,
+.listCategories-leave-active {
+  transition: all 3s ease;
+}
+.listCategories-enter,
+.listCategories-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
+}
 
 </style>

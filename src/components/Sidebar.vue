@@ -2,6 +2,8 @@
   <ul ref="sidenav" class="sidenav sidenav-fixed app-sidenav"
    :class="{'open': isToggleSidebar}"
   >
+    <li><br></li>
+    <li><br></li>
     <template v-for:="link in links">
       <li>
         <router-link

@@ -19,7 +19,7 @@
       <router-link
       to="/new-entry"
       >
-      <a class="btn-floating btn-large blue" href="#">
+      <a class="btn-floating btn-large blue accent-3" href="#">
         <i class="large material-icons">add</i>
       </a>
       </router-link>

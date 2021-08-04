@@ -37,7 +37,7 @@
 .app-sidenav {
     padding-top: 5px;
     position: fixed;
-    top: 64px;
+    /*top: 64px;*/
     width: 250px;
     transition: transform .3s;
     transition: transform .3s, -webkit-transform .3s;
@@ -177,4 +177,14 @@
 .history-chart {
     max-width: 600px;
     margin: 0 auto
+}
+
+.pagination li.active {
+    background-color: #465EF2 !important;
+}
+
+@media screen and (max-width: 580px) {
+    .page-title {
+        flex-direction: column;
+    }
 }

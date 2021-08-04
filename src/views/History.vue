@@ -18,29 +18,27 @@
             <thead>
             <tr>
               <th v-for="item in typeSorting" :key="item" @click="toggleSort(item)">
-                <span class="history-table__title">{{ item.title }}</span>
+                <span class="history-table__title waves-effect">{{ item.title }}</span>
                 <i v-if="item.status ==='down'" class="material-icons icon-filter-history">arrow_drop_down</i>
                 <i v-else-if="item.status ==='up'" class="material-icons icon-filter-history">arrow_drop_up</i>
               </th>
             </tr>
             </thead>
             <tbody class="history-table__body">
-              <template v-for="(operation) in paginatedData" :key="operation.id">
-                <tr>
+                <transition-group name="listOperations" tag="tr" v-for="(operation) in paginatedData" :key="operation.id">
                   <td>{{ operation.category.title }}</td>
                   <td>{{ operation.description }}</td>
                   <td>
                     <template v-if="operation.type === 'outcome'">
-                      <span class="badge red">Расход</span>
+                      <span class="badge red lighten-1">Расход</span>
                     </template>
                     <template v-else-if="operation.type === 'income'">
-                      <span class="badge green">Доход</span>
+                      <span class="badge green lighten-1">Доход</span>
                     </template>
                   </td>
                   <td>{{ operation.date }}</td>
                   <td>{{ operation.sum }} ₴</td>
-                </tr>
-              </template>
+                </transition-group>
             </tbody>
           </table>
           <div class="row">
@@ -73,7 +71,7 @@
                   {{`${item + 1}`}}
                 </a>
               </li>
-              <li :disabled="pageCount < 1" :class="pageCount < 1 ? 'disabled' : ''" class="waves-effect">
+              <li :disabled="pageNumber === pageAmount.length - 1" :class="pageNumber === pageAmount.length - 1 ? 'disabled' : ''" class="waves-effect">
                 <a @click="nextPage" >
                   <i class="material-icons">chevron_right</i>
                 </a>
@@ -101,7 +99,7 @@ export default {
     const loading = ref(true)
     const selectTable = ref(null)
     const operations = ref(null)
-    const pageSize = ref(100)
+    const pageSize = ref(10)
     const groupsOperation = ref([])
     const pageNumber = ref(0)
     const paginatedData = ref(null)
@@ -114,14 +112,15 @@ export default {
       operations.value = await getEntries()
       loading.value = false
       initSortOperations()
+      // getPageAmount()
       // getSelectList()
+      getPageAmount()
     }
     onMounted(gOperations)
 
     const initSortOperations = () => {
+      getSelectList()
       initPaginated()
-      getPageAmount()
-
     }
 
     const nextPage = () => {
@@ -132,8 +131,8 @@ export default {
     }
     const getPageAmount = () => {
       pageAmount.value = []
-      const result = getPageCount()
-      for (let i = 0; i < result + 1; i++) {
+      const result = operations.value.length / pageSize.value
+      for (let i = 0; i < result; i++) {
         pageAmount.value.push(i)
       }
     }
@@ -155,19 +154,20 @@ export default {
     watch(pageNumber, initPaginated)
     watch(pageSize, initPaginated)
 
-    // const getSelectList = () => {
-    //   if (operations.value.length / 10 >= 1) {
-    //     selectList.value.push(10)
-    //   }
-    //   if (operations.value.length / 50 >= 1) {
-    //     selectList.value.push(50)
-    //   }
-    //   if (operations.value.length / 100 >= 1) {
-    //     selectList.value.push(100)
-    //   }
-    //   selectList.value.push(operations.value.length)
-    //   getPageAmount()
-    // }
+    const getSelectList = () => {
+      if (operations.value.length / 10 >= 1) {
+        selectList.value.push(10)
+      }
+      if (operations.value.length / 50 >= 1) {
+        selectList.value.push(50)
+      }
+      if (operations.value.length / 100 >= 1) {
+        selectList.value.push(100)
+      }
+      selectList.value.push(operations.value.length)
+    }
+
+    watch(pageSize, getPageAmount)
 
     // Sorting
 
@@ -379,24 +379,15 @@ a {
   cursor: pointer;
 }
 
-/*.icon-group {*/
-/*  display: inline-block;*/
-/*  top: 39%;*/
-/*  !*position: absolute;*!*/
-/*}*/
-/*.icon-group-1 {*/
-/*  top: -10px;*/
-/*  position: absolute;*/
-/*}*/
-
-
-/*.sort-default {*/
-/*  background-image: url("../assets/img/sort_desc.png");*/
-/*}*/
-/*.sort-up {*/
-/*  background-image: url("../assets/img/sort_asc.png");*/
-/*}*/
-/*.sort-down {*/
-/*  background-image: url("../assets/img/sort_both.png");*/
-/*}*/
+.listOperations-item {
+  display: inline-block;
+  margin-right: 10px;
+}
+.listOperations-enter-active, .listOperations-leave-active {
+  transition: all 1s;
+}
+.listOperations-enter, .listOperations-leave-to /* .listOperations-leave-active до версии 2.1.8 */ {
+  opacity: 0;
+  transform: translateY(30px);
+}
 </style>
