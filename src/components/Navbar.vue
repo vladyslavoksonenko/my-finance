@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar blue-grey lighten-4">
+  <nav class="navbar navbar-fixed blue-grey lighten-4">
     <div class="nav-wrapper">
       <div class="navbar-left">
         <a @click.prevent="toggleSidebar" href="#">
@@ -7,6 +7,7 @@
         </a>
         <span class="black-text">{{ dateTime }}</span>
       </div>
+
       <ul class="right hide-on-small-and-down">
         <li>
           <a

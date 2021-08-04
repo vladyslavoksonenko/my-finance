@@ -1,5 +1,5 @@
 <template>
-  <ul ref="sidenav" class="sidenav app-sidenav"
+  <ul ref="sidenav" class="sidenav sidenav-fixed app-sidenav"
    :class="{'open': isToggleSidebar}"
   >
     <template v-for:="link in links">
@@ -34,7 +34,7 @@ export default {
     onMounted(() => {
 
       // eslint-disable-next-line no-undef
-      let sidenav = M.Sidenav.init(sidenav);
+      sidenav.value = M.Sidenav.init(sidenav);
     })
 
     return { sidenav }
