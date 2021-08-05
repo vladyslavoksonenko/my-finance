@@ -24,8 +24,8 @@
               </th>
             </tr>
             </thead>
-            <tbody class="history-table__body">
-                <transition-group name="listOperations" tag="tr" v-for="(operation) in paginatedData" :key="operation.id">
+            <transition-group name="listOperations" tag="tBody" class="history-table__body">
+                <tr v-for="(operation) in paginatedData" :key="operation.id">
                   <td>{{ operation.category.title }}</td>
                   <td>{{ operation.description }}</td>
                   <td>
@@ -38,8 +38,8 @@
                   </td>
                   <td>{{ operation.date }}</td>
                   <td>{{ operation.sum }} ₴</td>
-                </transition-group>
-            </tbody>
+                </tr>
+            </transition-group>
           </table>
           <div class="row">
             <div class="input-field col s6">
@@ -112,14 +112,13 @@ export default {
       operations.value = await getEntries()
       loading.value = false
       initSortOperations()
-      // getPageAmount()
-      // getSelectList()
       getPageAmount()
+      getSelectList()
+      toggleSort()
     }
     onMounted(gOperations)
 
     const initSortOperations = () => {
-      getSelectList()
       initPaginated()
     }
 
@@ -186,7 +185,7 @@ export default {
       },
       date: {
         title: "Дата",
-        status: "down",
+        status: "up",
       },
       sum: {
         title: "Сумма",
@@ -194,7 +193,7 @@ export default {
       }
     })
 
-    const toggleSort = (item) => {
+    const toggleSort = (item = typeSorting.date) => {
       for (let key in typeSorting) {
         if (typeSorting[key] === item && typeSorting[key].title !== "Категории" && typeSorting[key].title !== "Описание" ) {
           console.log(item)
@@ -384,10 +383,10 @@ a {
   margin-right: 10px;
 }
 .listOperations-enter-active, .listOperations-leave-active {
-  transition: all 1s;
+  transition: all .1s;
 }
 .listOperations-enter, .listOperations-leave-to /* .listOperations-leave-active до версии 2.1.8 */ {
   opacity: 0;
-  transform: translateY(30px);
+  transform: translateX(10px);
 }
 </style>
