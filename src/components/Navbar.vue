@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar navbar-fixed blue">
+  <nav class="navbar navbar-fixed light-blue lighten-2">
     <div class="nav-wrapper">
       <div class="navbar-left">
         <a @click.prevent="toggleSidebar" href="#">

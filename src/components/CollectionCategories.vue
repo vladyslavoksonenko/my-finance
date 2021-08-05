@@ -44,12 +44,12 @@ export default {
 /*}*/
 .listCategories-enter-active,
 .listCategories-leave-active {
-  transition: all 3s ease;
+  transition: all .5s ease;
 }
 .listCategories-enter,
 .listCategories-leave-to {
   opacity: 0;
-  transform: translateY(-30px);
+  transform: translateY(-10px);
 }
 
 </style>

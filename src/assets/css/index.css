@@ -183,6 +183,16 @@
     background-color: #465EF2 !important;
 }
 
+.modal-categories {
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.close-modal {
+    height: 25px;
+}
+
 @media screen and (max-width: 580px) {
     .page-title {
         flex-direction: column;

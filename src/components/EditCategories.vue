@@ -1,8 +1,9 @@
 <template>
   <div class="col s12">
     <div class="z-depth-2 category-block">
-      <div class="page-subtitle">
+      <div class="page-subtitle modal-categories">
         <h4>Редактировать</h4>
+        <i @click="closeModal" class="material-icons close-modal waves-effect">close</i>
       </div>
 
       <form @submit.prevent="edCategory">
@@ -98,8 +99,11 @@ export default {
     onMounted(updateForm)
     watch(currentIdCategory, updateForm)
 
+    const closeModal = () => {
+      emit('close-edit-category', false)
+    }
 
-    return { v$, stateCategoriesForm, edCategory, currentIdCategory }
+    return { v$, stateCategoriesForm, edCategory, closeModal, currentIdCategory }
 
   }
 

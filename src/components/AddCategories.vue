@@ -1,8 +1,9 @@
 <template>
   <div class="col s12">
     <div class="z-depth-2 category-block">
-      <div class="page-subtitle">
+      <div class="page-subtitle modal-categories">
         <h4>Создать</h4>
+        <i @click="closeModal" class="material-icons close-modal waves-effect">close</i>
       </div>
 
       <form @submit.prevent="addCategory">
@@ -78,7 +79,11 @@ export default {
       }
     }
 
-    return { v$, addCategory, stateCategoriesForm }
+    const closeModal = () => {
+      emit('close-create-category', false)
+    }
+
+    return { v$, addCategory, closeModal, stateCategoriesForm }
   }
 
 }
