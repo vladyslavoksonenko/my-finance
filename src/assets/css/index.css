@@ -9,12 +9,15 @@
     -ms-flex-align: center;
     align-items: center;
     padding-top: 5rem;
+    padding-left: 15px;
+    padding-right: 15px;
     height: 100vh
 }
 
 .auth-card {
     max-width: 500px;
-    width: 100%
+    width: 100%;
+    padding: 0 15px;
 }
 
 .auth-submit {
@@ -35,29 +38,32 @@
 }
 
 .app-sidenav {
-    padding-top: 5px;
+    /*padding-top: 5px;*/
     position: fixed;
+    z-index: 999;
     /*top: 64px;*/
     width: 250px;
-    transition: transform .3s;
-    transition: transform .3s, -webkit-transform .3s;
-    bottom: 0 !important;
-    height: auto !important
+    /*transition: transform .3s;*/
+    /*transition: transform .3s, -webkit-transform .3s;*/
+    /*bottom: 0 !important;*/
+    /*height: auto !important*/
 }
 
-.app-sidenav.open {
-    -webkit-transform: translateX(0);
-    transform: translateX(0)
-}
+/*.app-sidenav.open {*/
+/*    -webkit-transform: translateX(0);*/
+/*    transform: translateX(0)*/
+/*}*/
 
 .navbar {
-    position: absolute;
+    position: fixed;
     top: 0;
-    left: 0;
-    width: 100%;
+    /*left: 0;*/
+    /*//width: 100%;*/
     height: 64px !important;
     padding: 0 2rem;
-    z-index: 1000
+    z-index: 998;
+    width: calc(100% - 250px);
+    left: 250px;
 }
 
 .nav-wrapper {
@@ -193,8 +199,30 @@
     height: 25px;
 }
 
+.brand-logo {
+    height: 64px;
+    font-size: 24px;
+    font-weight: bold;
+    font-style: normal;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase;
+}
+
 @media screen and (max-width: 580px) {
     .page-title {
         flex-direction: column;
+    }
+}
+
+@media screen and (max-width: 992px) {
+    .app-content {
+        padding-left: 0px;
+    }
+    .navbar {
+        width: 100%;
+        left: 0;
     }
 }

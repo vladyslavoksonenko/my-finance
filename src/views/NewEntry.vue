@@ -14,9 +14,10 @@
       <form v-else @submit.prevent.stop="onSubmit" class="form z-depth-1">
         <label>Выберите категорию</label>
         <div class="input-field">
-          <select ref="selectCategories"
-                  class="browser-default"
-                  v-model="stateOperationForm.category"
+          <select
+              class="browser-default"
+              ref="selectCategories"
+              v-model="stateOperationForm.category"
           >
             <option value="" disabled selected>Выберите категорию</option>
             <option
@@ -118,7 +119,7 @@ export default {
     const stateOperationForm = reactive({
       category: null,
       type: "outcome",
-      sum: 0,
+      sum: null,
       description: null,
       date: yearMonthDay,
     })
@@ -131,17 +132,22 @@ export default {
 
     const v$ = useVuelidate(rules, stateOperationForm)
 
+    onMounted(() => {
+
+    })
+
     const gCategories = async () => {
       categories.value = await getCategories()
-      loading.value = false
+
+      loading.value = false;
 
       // eslint-disable-next-line no-undef
-      selectCategories.value = M.FormSelect.init(selectCategories.value);
+      selectCategories.value = M.FormSelect.init(selectCategories);
       // eslint-disable-next-line no-undef
-      // datepicker.value = M.Datepicker.init(datepicker.value, {
-      //   format: 'yyyy mm dd',
-      //   autoClose: true
-      // });
+      datepicker.value = M.Datepicker.init(datepicker.value, {
+        format: 'yyyy mm dd',
+        autoClose: true
+      });
 
     }
 

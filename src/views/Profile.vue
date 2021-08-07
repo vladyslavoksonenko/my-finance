@@ -16,6 +16,18 @@
           <span
               class="helper-text invalid">name</span>
         </div>
+        <p>
+          <label>
+            <input name="ru" type="radio" checked />
+            <span>Русский</span>
+          </label>
+        </p>
+        <p>
+          <label>
+            <input name="eng" type="radio" />
+            <span>English</span>
+          </label>
+        </p>
 
         <button class="btn waves-effect waves-light" type="submit">
           Обновить

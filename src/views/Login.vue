@@ -35,9 +35,8 @@
     <div class="card-action">
       <div>
         <button
-            class="btn waves-effect waves-light darken-3"
+            class="btn auth-submit waves-effect waves-light darken-3"
             type="submit"
-
         >
           Войти
           <i class="material-icons right">send</i>

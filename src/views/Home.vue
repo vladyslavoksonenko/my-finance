@@ -2,20 +2,23 @@
   <div class="app-page">
     <div class="page-title">
       <h3>Счет</h3>
-      <button @click="getCurrencyValue" class="btn waves-effect waves-light btn-small">
-        <i class="material-icons">refresh</i>
-      </button>
+<!--      <button @click="getCurrencyValue" class="btn waves-effect waves-light btn-small">-->
+<!--        <i class="material-icons">refresh</i>-->
+<!--      </button>-->
     </div>
     <div class="row">
       <template v-if="isLoadingCurrencies">
         <Loader />
       </template>
       <template v-else>
-<!--       :userInfo="userInfo.bill" *1-->
       <HomeBill :currencyValueArr="currencyValue" :billUser="billUser" />
+      <div class="col s12 m12 l4">
+        <ChartPie :chartData="chartData" />
+      </div>
       <HomeCurrency :currencies="currencies" />
      </template>
     </div>
+<!--    <ChartLine />-->
   </div>
 </template>
 
@@ -23,33 +26,65 @@
 
 import HomeCurrency from "../components/HomeCurrency";
 import HomeBill from "../components/HomeBill";
+import ChartPie from "../components/ChartPie";
+// import ChartLine from "../components/ChartLine"
 import { useExRates } from "../use/useExRates";
-import { getUserData } from "../firebase";
+import {getUserData, getCategories, getEntries} from "../firebase";
 import Loader from "../components/Loader";
-import {onMounted, ref, watch} from "vue";
+import {onMounted, reactive, ref} from "vue";
 
 export default {
   name: 'Home',
   components: {
+    ChartPie,
     Loader,
     HomeBill,
     HomeCurrency,
+    // ChartLine
   },
   setup() {
     let billUser = ref(0)
     const currencyValue = ref([])
     const currencies = ref([])
     const isLoadingCurrencies = ref(true)
+    const operations = ref(null)
 
-    const getUserBill = async () => {
+    const getAsyncInfo = async () => {
         const userData = await getUserData()
         billUser.value = userData.bill
+
+      const categories = await getCategories()
+      operations.value = await getEntries()
+
+      currencies.value = await useExRates()
+
+      getCurrencyValue()
+      calculateChartData(categories)
+
     }
 
-    const getCurrencies = async () => {
-      currencies.value = await useExRates()
-      return currencies
+    // Graph
+
+    const chartData = reactive({
+      labels: [],
+      data: []
+    })
+
+    const calculateChartData = (categories) => {
+      categories.map((category) => {
+        const spand = operations.value.filter((op) => category.id === op.category.id)
+            .filter(op => op.type === "outcome")
+            .reduce((accumulator, current) => {
+              const acc = Number(accumulator)
+              const curr = Number(current.sum)
+              return acc + curr
+            }, 0)
+        chartData.labels.push(category.title)
+        chartData.data.push(spand)
+      })
     }
+
+    // end Graph
 
     const getCurrencyValue = () => {
       const res = []
@@ -61,13 +96,10 @@ export default {
       return currencyValue
     }
 
-    onMounted(getUserBill)
-    onMounted(getCurrencies)
-    watch(getCurrencyValue)
+    onMounted(getAsyncInfo)
 
 
-
-    return { currencies, billUser, currencyValue, isLoadingCurrencies}
+    return { currencies, billUser, currencyValue, isLoadingCurrencies, getCurrencyValue, chartData}
 
   }
 }

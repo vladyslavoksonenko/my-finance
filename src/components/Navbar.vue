@@ -1,18 +1,18 @@
 <template>
-  <nav class="navbar navbar-fixed light-blue lighten-2">
+  <nav class="navbar navbar-fixed indigo darken-3">
     <div class="nav-wrapper">
       <div class="navbar-left">
-        <a @click.prevent="toggleSidebar" href="#">
-          <i class="material-icons black-text">dehaze</i>
+        <a data-target="sidenav" class="sidenav-trigger left" href="#">
+          <i class="material-icons white-text">dehaze</i>
         </a>
-        <span class="black-text">{{ dateTime }}</span>
+        <span class="white-text">{{ dateTime }}</span>
       </div>
 
       <ul class="right hide-on-small-and-down">
         <li>
           <a
               ref="dropDown"
-              class="dropdown-trigger black-text"
+              class="dropdown-trigger white-text"
               href="#"
               data-target="dropdown"
           >
@@ -67,6 +67,7 @@ export default {
     },
     toggleSidebar () {
       this.$emit('toggle-sidebar')
+
     },
     async logout () {
       await this.signOut()

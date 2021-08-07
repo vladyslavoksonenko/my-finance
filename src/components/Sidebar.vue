@@ -1,9 +1,9 @@
 <template>
-  <ul ref="sidenav" class="sidenav sidenav-fixed app-sidenav"
+  <ul ref="sidenav" id="sidenav" class="sidenav sidenav-fixed app-sidenav"
    :class="{'open': isToggleSidebar}"
   >
-    <li><br></li>
-    <li><br></li>
+    <li class="brand-logo white-text indigo darken-3 center z-depth-2">My-finance</li>
+    <li></li>
     <template v-for:="link in links">
       <li>
         <router-link
@@ -24,6 +24,7 @@
 
 <script>
 import {onMounted, ref} from "vue";
+import M from 'materialize-css/dist/js/materialize.min'
 
 export default {
   name: "Sidebar",
@@ -34,9 +35,9 @@ export default {
     const sidenav = ref(null)
 
     onMounted(() => {
-
-      // eslint-disable-next-line no-undef
-      sidenav.value = M.Sidenav.init(sidenav);
+      sidenav.value = M.Sidenav.init(sidenav.value);
+      console.log(sidenav.value)
+      // console.log(sidenav.value)
     })
 
     return { sidenav }

@@ -1,6 +1,5 @@
 <template>
   <div class="app-main-layout">
-
     <Navbar
         :userName="userName"
         v-on:toggle-sidebar="toggleSidebar"></Navbar>
@@ -10,7 +9,6 @@
 
     <main
         class="app-content"
-        :class="{'full':!isToggleSidebar}"
     >
       <router-view></router-view>
     </main>

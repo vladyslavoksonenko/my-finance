@@ -6,6 +6,7 @@
 <script>
 import EmptyLayouts from './layouts/EmptyLayouts'
 import MainLayouts from './layouts/MainLayouts'
+import M from 'materialize-css'
 
 
 export default {
@@ -14,6 +15,10 @@ export default {
     layout() {
       return (this.$route.meta.layout || 'empty') + '-layouts'
     }
+  },
+  mounted() {
+    M.AutoInit();
+    this.$nextTick(M.updateTextFields);
   }
 
 }

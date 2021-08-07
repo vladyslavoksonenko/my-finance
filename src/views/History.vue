@@ -14,6 +14,9 @@
           </div>
         </template>
         <div v-else class="history-table">
+          <div class="history-chart">
+            <ChartPie :chartData="chartData" />
+          </div>
           <table class="highlight responsive-table">
             <thead>
             <tr>
@@ -86,13 +89,15 @@
 
 <script>
 import {onMounted, ref, watch, reactive} from "vue";
-import {getEntries} from "../firebase";
+import {getEntries, getCategories} from "../firebase";
 import Loader from "../components/Loader";
+import ChartPie from "../components/ChartPie";
 
 
 export default {
   name: "History",
   components: {
+    ChartPie,
     Loader
   },
   setup () {
@@ -108,13 +113,16 @@ export default {
     const selectList = ref([])
 
 
+
     const gOperations = async () => {
       operations.value = await getEntries()
+      const categories = await getCategories();
       loading.value = false
       initSortOperations()
       getPageAmount()
       getSelectList()
       toggleSort()
+      calculateChartData(categories)
     }
     onMounted(gOperations)
 
@@ -196,7 +204,6 @@ export default {
     const toggleSort = (item = typeSorting.date) => {
       for (let key in typeSorting) {
         if (typeSorting[key] === item && typeSorting[key].title !== "Категории" && typeSorting[key].title !== "Описание" ) {
-          console.log(item)
           switch (item.status) {
             case "none":
               item.status = "down"
@@ -323,6 +330,30 @@ export default {
     }
     onMounted(initMSelect)
 
+    // Graph data
+
+    const chartData = reactive({
+      labels: [],
+      data: []
+    })
+
+    const calculateChartData = (categories) => {
+      categories.map((category) => {
+        const spand = operations.value.filter((op) => category.id === op.category.id)
+            .filter(op => op.type === "outcome")
+            .reduce((accumulator, current) => {
+              const acc = Number(accumulator)
+              const curr = Number(current.sum)
+              return acc + curr
+            }, 0)
+        chartData.labels.push(category.title)
+        chartData.data.push(spand)
+      })
+      console.log(chartData)
+
+    }
+
+
     return {
       loading,
       selectTable,
@@ -337,8 +368,8 @@ export default {
       selectList,
       typeSorting,
       toggleSort,
-      operations
-
+      operations,
+      chartData
     }
   }
 }

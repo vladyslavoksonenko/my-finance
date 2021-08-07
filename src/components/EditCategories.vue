@@ -7,25 +7,12 @@
       </div>
 
       <form @submit.prevent="edCategory">
-<!--        <label>Выберите категорию</label>-->
-<!--        <div class="input-field" >-->
-<!--          <select-->
-<!--              class="browser-default"-->
-<!--              ref="selectCategories"-->
-<!--              v-model="currentIdCategory"-->
-<!--          >-->
-<!--            <option value="" disabled selected>Выберите категорию</option>-->
-<!--            <option v-for="category in categories" v-bind:value="category.id" v-bind:key="category.id">{{ category.title }}</option>-->
-<!--          </select>-->
-<!--        </div>-->
-<!--        <template v-if="isShowInputs">-->
         <div class="input-field">
           <input
               type="text"
               id="name-edit"
               v-model="stateCategoriesForm.name"
           />
-<!--          <label for="name-edit">Новое название</label>-->
           <span v-if="v$.name.$error" class="helper-text invalid">Введите имя</span>
         </div>
 
@@ -35,7 +22,6 @@
               type="number"
               v-model="stateCategoriesForm.limited"
           >
-<!--          <label for="limit">Лимит</label>-->
           <span
               v-if="v$.limited.$error"
               class="helper-text invalid"
@@ -46,7 +32,6 @@
           Обновить
           <i class="material-icons right">send</i>
         </button>
-<!--          </template>-->
       </form>
     </div>
   </div>
@@ -63,7 +48,7 @@ import message from "../utils/messages";
 export default {
   name: "EditCategories",
   props: {
-    editCategoryId: Number,
+    editCategoryId: String,
     categories: Array
   },
   setup(props, { emit }) {

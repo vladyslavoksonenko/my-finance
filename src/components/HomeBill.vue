@@ -1,9 +1,9 @@
 <template>
-  <div class="col s12 m6 l4">
-    <div class="card light-blue bill-card">
+  <div class="col s12 m12 l4">
+    <div class="card bill-card indigo darken-3">
       <div class="card-content white-text">
         <!-- // * 1 недоступно свойство объекта при передаче через пропс, userInfo.bill-->
-        <span class="card-title">У вас {{ billUser }} UAH</span>
+        <span class="card-title">У вас ₴{{ billUser }}</span>
         <p v-for="value in currencyValueArr" :key="value" class="currency-line">
           <span>{{ value }}</span>
         </p>

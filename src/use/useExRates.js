@@ -13,7 +13,7 @@ export const useExRates = async () => {
   const url = `https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date=${date.value.replace(/\s/g, '')}&json`;
   const response = await fetch(url);
   const data = await response.json();
-  const currenciesNameArr = ["USD", "RUB", "EUR"];
+  const currenciesNameArr = ["USD", "PLN", "EUR"];
   isLoadingCurrencies.value = false
   data.forEach((element) => {
     currenciesNameArr.forEach((cc) => {
