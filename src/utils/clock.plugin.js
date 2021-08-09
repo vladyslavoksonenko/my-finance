@@ -14,7 +14,7 @@ let yearMonthDay = null
     date.value = result.date
     time.value = result.time
 
-    const interval = setInterval(async () => {
+    const interval = setInterval(() => {
        const result = getNow()
        dateTime.value = `${result.date} ${result.time}`
        date.value = result.date

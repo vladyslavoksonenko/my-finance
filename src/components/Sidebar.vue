@@ -36,8 +36,6 @@ export default {
 
     onMounted(() => {
       sidenav.value = M.Sidenav.init(sidenav.value);
-      console.log(sidenav.value)
-      // console.log(sidenav.value)
     })
 
     return { sidenav }

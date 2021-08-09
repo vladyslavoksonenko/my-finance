@@ -1,6 +1,5 @@
 import firebase from "firebase";
-
-import {ref, onUnmounted, computed} from "vue";
+import {ref, onUnmounted, computed, onMounted} from "vue";
 
 firebase.initializeApp({
   apiKey: "AIzaSyDcUIkydrkmTxDZFdDB3rDK2AW3YZQtF6M",
@@ -13,8 +12,8 @@ firebase.initializeApp({
   measurementId: "G-1CH84V1LH7"
 })
 
-const auth = firebase.auth()
 
+const auth = firebase.auth()
 
 
 export const useAuth = () => {
@@ -76,23 +75,32 @@ export const useAuth = () => {
 
 // Получаю ID
 
-const getUid = async  () => {
+const getUid = async () => {
   const user = await auth.currentUser
   return user ? user.uid : null
 }
 
 // Получаю Инфу из БД про Юзера
 
-export const getUserData = async () => {
+export const getUserData = () => {
+  const userData = ref({})
+  const isLoadingUserData = ref(true)
+  const fetch = async () => {
     try {
       const uid = await getUid()
-      const userData = ( await firebase.database().ref(`/users/${uid}/info/`).once('value')).val()
-      return userData
+      userData.value = await (await firebase.database().ref(`/users/${uid}/info/`).once('value')).val()
 
     } catch (e) {
       alert("Error:")
     }
+  }
+
+  onMounted(fetch)
+
+  isLoadingUserData.value = false;
+  return { userData, isLoadingUserData}
 }
+
 
 // Category
 
@@ -107,26 +115,34 @@ export const createCategory = async (title, limit) => {
   }
 }
 
-export const getCategories = async () => {
-  try {
-    const uid = await getUid()
-    const categories = await ((await firebase.database().ref(`/users/${uid}/categories`).once('value')).val()) || {}
-    return Object.keys(categories).map(key => ({...categories[key], id: key}))
+export const getCategories = () => {
+  const categories = ref(null)
+  const isLoadingCategories = ref(true)
+  const fetch = async () => {
+    try {
+      const uid = await getUid()
+      const res = await ((await firebase.database().ref(`/users/${uid}/categories`).once('value')).val()) || {}
+      categories.value = Object.keys(res).map(key => ({...res[key], id: key}))
+      isLoadingCategories.value = false
       // Одно и тоже (не забывай про спред)
-    // const resultCategories = []
-    // Object.keys(categories).forEach((key) => {
-    //   resultCategories.push({
-    //     title: categories[key].title,
-    //     limit: categories[key].limit,
-    //     id: key
-    //   })
-    // })
-    // return resultCategories
+      // const resultCategories = []
+      // Object.keys(categories).forEach((key) => {
+      //   resultCategories.push({
+      //     title: categories[key].title,
+      //     limit: categories[key].limit,
+      //     id: key
+      //   })
+      // })
+      // return resultCategories
 
-  } catch (e) {
-    alert(e)
-    throw e
+    } catch (e) {
+      alert(e)
+      throw e
+    }
   }
+  onMounted(fetch)
+
+  return { isLoadingCategories, categories }
 }
 
 export const editCategory = async (id, title, limit) => {
@@ -160,16 +176,36 @@ export const newEntry = async (operation, resultOperation) => {
   }
 }
 
-export const getEntries = async () => {
-  try {
-    const uid = await getUid()
-    const operations = await ((await firebase.database().ref(`/users/${uid}/operations`).once('value')).val()) || {}
-    return Object.keys(operations).map(key => ({...operations[key], id: key}))
+export const getEntries = () => {
+  const operations = ref(null)
+  const isLoadingOperations = ref(true)
 
-  } catch (e) {
-    alert(e)
+  const fetch = async () => {
+    try {
+      const uid = await getUid()
+      const res = await ((await firebase.database().ref(`/users/${uid}/operations`).once('value')).val()) || {}
+      operations.value = Object.keys(res).map(key => ({...res[key], id: key}))
+      isLoadingOperations.value = false
+
+    } catch (e) {
+      alert(e)
+    }
   }
+
+  onMounted(fetch)
+
+  return {operations, isLoadingOperations}
 }
+
+//
+// export default class FirebaseServer {
+//   constructor(options) {
+//     this.auth = firebase.auth()
+//   }
+//
+//
+//
+// }
 
 
 

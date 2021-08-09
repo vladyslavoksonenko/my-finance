@@ -1,30 +1,33 @@
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import getTime from "../utils/clock.plugin";
 
-
-export const useExRates = async () => {
-
-  const currencies = []
+export const useExRates = () => {
+  const currencies = ref([])
   const isLoadingCurrencies = ref(true)
+  const { date } = getTime()
 
+  const fetching = async () => {
+    try {
+      const url = `https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date=${date.value.replace(/\s/g, '')}&json`;
+      const response = await fetch(url);
+      const data = await response.json();
+      const currenciesNameArr = ["USD", "PLN", "EUR"];
+      data.forEach((element) => {
+        currenciesNameArr.forEach((cc) => {
+          if (element.cc === cc) {
+            currencies.value.push(element)
+          }
+        })
+      })
+      isLoadingCurrencies.value = false
+    } catch (e) {
+      alert(e)
+    }
+  }
 
-  const { date } = await getTime()
+  onMounted(fetching)
 
-  const url = `https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date=${date.value.replace(/\s/g, '')}&json`;
-  const response = await fetch(url);
-  const data = await response.json();
-  const currenciesNameArr = ["USD", "PLN", "EUR"];
-  isLoadingCurrencies.value = false
-  data.forEach((element) => {
-    currenciesNameArr.forEach((cc) => {
-      if (element.cc === cc) {
-        currencies.push(element)
-      }
-    })
-  })
-
-
-  return currencies
+  return { currencies, isLoadingCurrencies }
 
 }
 

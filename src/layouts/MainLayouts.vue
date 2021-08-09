@@ -48,16 +48,6 @@ export default {
         await getUid()
         await fetchUserData()
         userName.value = userData.value.name
-        // console.log("user.value ")
-        // console.log(typeof user.value)
-        // console.log(user.value)
-        // console.log("fetchUserData() ")
-        // console.log(typeof fetchUserData)
-        // console.log(fetchUserData())
-        // console.log("UserData: ")
-        // console.log(typeof userData.value)
-        // console.log(userName.value)
-
     })
 
     return { user, isLogin, getUid, fetchUserData, userData, userName }

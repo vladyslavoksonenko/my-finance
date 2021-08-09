@@ -1,24 +1,20 @@
 <template>
   <div class="app-page">
     <div class="page-title">
-      <h3>Счет</h3>
-<!--      <button @click="getCurrencyValue" class="btn waves-effect waves-light btn-small">-->
-<!--        <i class="material-icons">refresh</i>-->
-<!--      </button>-->
+      <h3>Счет</h3>git
     </div>
     <div class="row">
-      <template v-if="isLoadingCurrencies">
+      <template v-if="isLoadingUserData || isLoadingCategories || isLoadingOperations || isLoadingCurrencies">
         <Loader />
       </template>
       <template v-else>
-      <HomeBill :currencyValueArr="currencyValue" :billUser="billUser" />
+      <HomeBill :currencyValueArr="getCurrencyValue" :billUser="userData.bill" />
       <div class="col s12 m12 l4">
-        <ChartPie :chartData="chartData" />
+        <ChartPie :chartData="calculate" />
       </div>
       <HomeCurrency :currencies="currencies" />
      </template>
     </div>
-<!--    <ChartLine />-->
   </div>
 </template>
 
@@ -27,11 +23,11 @@
 import HomeCurrency from "../components/HomeCurrency";
 import HomeBill from "../components/HomeBill";
 import ChartPie from "../components/ChartPie";
-// import ChartLine from "../components/ChartLine"
 import { useExRates } from "../use/useExRates";
 import {getUserData, getCategories, getEntries} from "../firebase";
 import Loader from "../components/Loader";
-import {onMounted, reactive, ref} from "vue";
+import {computed} from "vue";
+import {calculateChartData} from "../use/useGetChartDataCategory";
 
 export default {
   name: 'Home',
@@ -40,66 +36,32 @@ export default {
     Loader,
     HomeBill,
     HomeCurrency,
-    // ChartLine
   },
   setup() {
-    let billUser = ref(0)
-    const currencyValue = ref([])
-    const currencies = ref([])
-    const isLoadingCurrencies = ref(true)
-    const operations = ref(null)
+    const { currencies, isLoadingCurrencies } = useExRates()
+    const { userData, isLoadingUserData } = getUserData()
+    const { categories, isLoadingCategories } = getCategories()
+    const { operations, isLoadingOperations } = getEntries()
+    const { calculate } = calculateChartData(categories, operations)
 
-    const getAsyncInfo = async () => {
-        const userData = await getUserData()
-        billUser.value = userData.bill
-
-      const categories = await getCategories()
-      operations.value = await getEntries()
-
-      currencies.value = await useExRates()
-
-      getCurrencyValue()
-      calculateChartData(categories)
-
-    }
-
-    // Graph
-
-    const chartData = reactive({
-      labels: [],
-      data: []
-    })
-
-    const calculateChartData = (categories) => {
-      categories.map((category) => {
-        const spand = operations.value.filter((op) => category.id === op.category.id)
-            .filter(op => op.type === "outcome")
-            .reduce((accumulator, current) => {
-              const acc = Number(accumulator)
-              const curr = Number(current.sum)
-              return acc + curr
-            }, 0)
-        chartData.labels.push(category.title)
-        chartData.data.push(spand)
-      })
-    }
-
-    // end Graph
-
-    const getCurrencyValue = () => {
+    const getCurrencyValue = computed(() => {
       const res = []
       currencies.value.forEach((element) => {
-        res.push((billUser.value / element.rate).toFixed(2) + " " + element.cc)
+        res.push((userData.value.bill / element.rate).toFixed(2) + " " + element.cc)
       })
-      currencyValue.value = res
-      isLoadingCurrencies.value = false
-      return currencyValue
+      return res
+    })
+
+    return {
+      currencies,
+      userData,
+      calculate,
+      isLoadingCurrencies,
+      isLoadingUserData,
+      isLoadingCategories,
+      isLoadingOperations,
+      getCurrencyValue
     }
-
-    onMounted(getAsyncInfo)
-
-
-    return { currencies, billUser, currencyValue, isLoadingCurrencies, getCurrencyValue, chartData}
 
   }
 }

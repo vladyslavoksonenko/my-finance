@@ -11,6 +11,7 @@ export default {
     chartData: Object
   },
   setup (props) {
+    console.log(props)
     const pie = ref(null);
     const config = reactive({
       type: 'pie',
@@ -42,7 +43,6 @@ export default {
       return `rgb(${color.r}, ${color.g}, ${color.b})`
 
     }
-
     const getArrBackColor = (length) => {
       const arr = []
       for (let i = 0; i <= length; i++) {
