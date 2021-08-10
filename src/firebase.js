@@ -124,7 +124,7 @@ export const getCategories = () => {
       const res = await ((await firebase.database().ref(`/users/${uid}/categories`).once('value')).val()) || {}
       categories.value = Object.keys(res).map(key => ({...res[key], id: key}))
       isLoadingCategories.value = false
-      // Одно и тоже (не забывай про спред)
+      // Одно и тоже (Спред)
       // const resultCategories = []
       // Object.keys(categories).forEach((key) => {
       //   resultCategories.push({

@@ -1,7 +1,7 @@
 <template>
   <div class="app-page">
     <div class="page-title">
-      <h3>Счет</h3>git
+      <h3>Счет</h3>
     </div>
     <div class="row">
       <template v-if="isLoadingUserData || isLoadingCategories || isLoadingOperations || isLoadingCurrencies">

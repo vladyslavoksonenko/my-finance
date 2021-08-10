@@ -6,7 +6,7 @@
         <input
             id="email"
             type="text"
-            v-model.trim="email"
+            v-model.trim="formState.email"
             @blur="v$.email.$touch()"
             :class="{'invalid': v$.email.$error}"
         >
@@ -23,7 +23,7 @@
             id="password"
             type="password"
             @blur="v$.password.$touch()"
-            v-model.trim ="password"
+            v-model.trim ="formState.password"
             :class="{'invalid': (v$.password.$error)}"
         >
         <label for="password">Пароль</label>
@@ -55,53 +55,45 @@
 import useVuelidate from  '@vuelidate/core'
 import { email, required, minLength } from '@vuelidate/validators'
 import messages from '../utils/messages'
+import { useRouter, useRoute } from 'vue-router'
 import { message$ } from '../utils/message.plugin'
+import { onMounted, reactive } from "vue";
 import { useAuth } from "../firebase"
 
 export default {
   name: "Login",
   setup() {
     const { user, isLogin, signIn } = useAuth()
-
-    return {
-      isLogin,
-      user,
-      signIn,
-      v$: useVuelidate()
-    }
-  },
-  data() {
-    return {
+    const route = useRoute()
+    const router = useRouter()
+    const formState = reactive({
       email: '',
       password: ''
-    }
-  },
-  validations () {
-    return {
+    })
+    const rules = {
       email: { email, required },
       password: { minLength: minLength(6), required }
     }
-  },
-  mounted() {
-    if (messages[this.$route.query.message]) {
-      message$(messages[this.$route.query.message] )
-    }
-  },
-  methods: {
-    async onSubmit () {
-      if (this.v$.$invalid) {
-        this.v$.$touch()
+
+    const v$ = useVuelidate(rules, formState)
+
+    onMounted(() => {
+      if (messages[route.query.message]) {
+        message$(messages[route.query.message] )
+      }
+    })
+
+    const onSubmit = async () => {
+      if (v$.value.$invalid) {
+        v$.value.$touch()
         return
       }
-      const formData = {
-        email: this.email,
-        password: this.password
-      }
-      const result = await this.signIn(formData.email, formData.password)
 
+      const result = await signIn(formState.email, formState.password)
       if (result.user) {
         message$(messages["welcom"])
-        this.$router.push('/')
+        router.push('/')
+
       }
 
       for (let key in messages) {
@@ -112,7 +104,16 @@ export default {
       }
 
     }
-  }
+
+    return {
+      formState,
+      isLogin,
+      user,
+      signIn,
+      onSubmit,
+      v$,
+    }
+  },
 }
 </script>
 
