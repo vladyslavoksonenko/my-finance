@@ -9,7 +9,7 @@ export default {
   "editCategory" : "Категория была отредактирована!",
   "deletedCategory" : "Категория была удалена!",
   "addEntry-outcome" : "Ваш расход:",
-  "addEntry-income" : "Ваш доход успешно добавлен:"
+  "addEntry-income" : "Ваш доходш18ишшш"
 
 
 

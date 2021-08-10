@@ -6,7 +6,7 @@
         <input
           id="email"
           type="text"
-          v-model.trim="email"
+          v-model.trim="formState.email"
           @blur="v$.email.$touch"
         >
         <label for="email">Email</label>
@@ -17,7 +17,7 @@
           id="password"
           type="password"
           class="validate"
-          v-model.trim="password"
+          v-model.trim="formState.password"
           @blur="v$.password.$touch"
         >
         <label for="password">Пароль</label>
@@ -31,7 +31,7 @@
             id="name"
             type="text"
             class="validate"
-            v-model.trim="name"
+            v-model.trim="formState.name"
             @blur="v$.name.$touch"
         >
         <label for="name">Имя</label>
@@ -39,7 +39,7 @@
       </div>
       <p>
         <label>
-          <input v-model="isAccepted" type="checkbox" />
+          <input v-model="formState.isAccepted" type="checkbox" />
           <span>С правилами согласен</span>
         </label>
         <small v-if="v$.isAccepted.$error" class="helper-text invalid">Вы не согласны из правилами</small>
@@ -66,56 +66,46 @@
 
 <script>
 import useVuelidate from "@vuelidate/core";
-import {minLength, email, required} from "@vuelidate/validators";
+import { minLength, email, required } from "@vuelidate/validators";
 import { useAuth } from "../firebase";
 import messages from "../utils/messages";
 import { message$ } from "../utils/message.plugin";
+import { reactive } from "vue"
+import { useRouter } from "vue-router"
 
 
 export default {
   name: "Register",
   setup () {
     const { signUp, user } = useAuth()
-    return {
-      user,
-      signUp,
-      v$: useVuelidate()
-    }
-  },
-  data () {
-    return {
+    const router = useRouter()
+    // const route = useRoute()
+    const formState = reactive({
       email: '',
       password: '',
       name: '',
       isAccepted: false
-    }
-  },
-  validations () {
-    return {
+    })
+    const rules = {
       email: {email, required},
       password: {minLength: minLength(6), required},
       name: {minLength: minLength(2), required},
       isAccepted: {checked: v => v}
     }
-  },
-  methods: {
-    async onSubmit () {
-      if (this.v$.$invalid) {
-        this.v$.$touch()
+
+    const v$ = useVuelidate(rules, formState)
+
+    const onSubmit = async () => {
+      if (v$.value.$invalid) {
+        v$.value.$touch()
         return
       }
-      const dataRegistration = {
-        name: this.name,
-        email: this.email,
-        password: this.password
-      }
-      const result = await this.signUp(dataRegistration.name, dataRegistration.email, dataRegistration.password)
 
-      console.log(result)
+      const result = await signUp(formState.name, formState.email, formState.password)
 
       if (result.user) {
         message$(messages["welcom"])
-        this.$router.push('/')
+        router.push('/')
       }
 
       for (let key in messages) {
@@ -125,7 +115,60 @@ export default {
         }
       }
     }
-  }
+
+
+    return {
+      user,
+      signUp,
+      v$,
+      onSubmit,
+      formState
+    }
+  },
+  // data () {
+  //   return {
+  //     email: '',
+  //     password: '',
+  //     name: '',
+  //     isAccepted: false
+  //   }
+  // },
+  // validations () {
+  //   return {
+  //     email: {email, required},
+  //     password: {minLength: minLength(6), required},
+  //     name: {minLength: minLength(2), required},
+  //     isAccepted: {checked: v => v}
+  //   }
+  // },
+  // methods: {
+    // async onSubmit () {
+    //   if (this.v$.$invalid) {
+    //     this.v$.$touch()
+    //     return
+    //   }
+    //   const dataRegistration = {
+    //     name: this.name,
+    //     email: this.email,
+    //     password: this.password
+    //   }
+    //   const result = await this.signUp(dataRegistration.name, dataRegistration.email, dataRegistration.password)
+    //
+    //   console.log(result)
+    //
+    //   if (result.user) {
+    //     message$(messages["welcom"])
+    //     this.$router.push('/')
+    //   }
+    //
+    //   for (let key in messages) {
+    //     if (result.code === key) {
+    //       message$(messages[result.code])
+    //       return
+    //     }
+    //   }
+    // }
+  // }
 }
 </script>
 
