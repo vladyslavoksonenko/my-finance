@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import { createCategory } from "../firebase";
+import { getCategories } from "../firebase";
 import {reactive} from "vue";
 import {minLength, required} from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
@@ -50,6 +50,7 @@ import {message$} from "../utils/message.plugin";
 export default {
   name: "AddCategories",
   setup(props, { emit }) {
+    const { createCategory } = getCategories()
     const stateCategoriesForm = reactive({
       name: "",
       limited: ""
@@ -67,20 +68,19 @@ export default {
         return
       }
       try {
-      const result = await createCategory(stateCategoriesForm.name, stateCategoriesForm.limited)
-      console.log(result)
+        await createCategory(stateCategoriesForm.name, stateCategoriesForm.limited)
         message$(message["createCategory"])
       } catch (e) {
         alert(e)
       } finally {
         stateCategoriesForm.name = ""
         stateCategoriesForm.limited = ""
-        emit('close-create-category', false)
+        emit('close-create-category', false, true)
       }
     }
 
     const closeModal = () => {
-      emit('close-create-category', false)
+      emit('close-create-category', false, false)
     }
 
     return { v$, addCategory, closeModal, stateCategoriesForm }

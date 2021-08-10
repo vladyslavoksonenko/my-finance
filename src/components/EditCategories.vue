@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import {editCategory} from "../firebase";
+import { getCategories } from "../firebase";
 import {onMounted, reactive, ref, watch} from "vue";
 import {minLength, required} from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
@@ -53,6 +53,7 @@ export default {
   },
   setup(props, { emit }) {
     const currentIdCategory = ref(props.editCategoryId)
+    const { editCategory } = getCategories()
     const stateCategoriesForm = reactive({
       name: "",
       limited: ""
@@ -69,7 +70,7 @@ export default {
         return
       }
       await editCategory(currentIdCategory.value, stateCategoriesForm.name, stateCategoriesForm.limited)
-      emit('close-edit-category', false)
+      emit('close-edit-category', false, currentIdCategory.value, true)
       message$(message["editCategory"])
     }
 

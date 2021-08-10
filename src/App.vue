@@ -18,7 +18,6 @@ export default {
   },
   mounted() {
     M.AutoInit();
-    this.$nextTick(M.updateTextFields);
   }
 
 }

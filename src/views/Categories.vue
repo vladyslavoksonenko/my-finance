@@ -12,7 +12,7 @@
           <i class="material-icons">add</i>
         </a>
       </div>
-      <template v-if="loading">
+      <template v-if="isLoadingCategories">
         <Loader />
       </template>
       <section v-else>
@@ -57,11 +57,12 @@
 import AddCategories from "../components/AddCategories";
 import EditCategories from "../components/EditCategories";
 import CollectionCategories from "../components/CollectionCategories";
-import {computed, onMounted, ref, watch} from "vue"
-import {deletedCategories, getCategories} from "../firebase";
+import {computed, ref, watch} from "vue"
+import { getCategories } from "../firebase";
 import Loader from "../components/Loader";
 import {message$} from "../utils/message.plugin";
 import messages from "../utils/messages";
+// import M from "materialize-css"
 
 export default {
   name: "Categories",
@@ -72,55 +73,50 @@ export default {
     AddCategories
   },
   setup () {
-
-    // Show
-
-    const loading = ref(true)
     const isOpenCreateCategory = ref(false)
     const isOpenEditCategory = ref(false)
     const editCategoryId = ref(null)
     const openCreateCategory = ref(null)
-    const categories = ref(null)
-
+    const { categories, isLoadingCategories, deletedCategories, fetch } = getCategories()
     const openTooltip = () => {
       isOpenCreateCategory.value = true
       // eslint-disable-next-line no-undef
-      openCreateCategory.value = M.Tooltip.init(openCreateCategory.value);
+      // openCreateCategory.value = M.Tooltip.init(openCreateCategory.value);
     }
+    // onMounted(() => {
+    //   M.AutoInit()
+    // })
 
-    const toggleCreateCategory = (bool) => {
+    const toggleCreateCategory = async (bool, isSend) => {
       isOpenCreateCategory.value = bool
+      if (isSend) {
+        categories.value = await fetch()
+      }
     }
 
-    const toggleEditCategory = (bool, categoryId) => {
+    const toggleEditCategory = async (bool, categoryId, isSend) => {
       isOpenEditCategory.value = bool
       editCategoryId.value = categoryId
+      if (isSend) {
+        categories.value = await fetch()
+      }
     }
 
     // Categories
-
-
-    const gCategories = async () => {
-      categories.value = await getCategories()
+    const isCategoriesNull = () => {
       if (!categories.value.length || categories.value === null) {
         isOpenCreateCategory.value = true
       }
-      loading.value = false
     }
+    watch(categories, isCategoriesNull)
 
     const dCategory = async (categoryId) => {
-      categories.value = categories.value.filter((itemCategory) => itemCategory.id !== categoryId)
+      // categories.value = categories.value.filter((itemCategory) => itemCategory.id !== categoryId)
       await deletedCategories(categoryId)
+      categories.value = await fetch()
       message$(messages["deletedCategory"])
     }
-
-    onMounted(gCategories)
-
-
     computed(() => dCategory)
-
-    watch(categories, gCategories)
-
 
     return {
       isOpenCreateCategory,
@@ -132,7 +128,7 @@ export default {
       toggleCreateCategory,
       categories,
       dCategory,
-      loading
+      isLoadingCategories
     }
   }
 

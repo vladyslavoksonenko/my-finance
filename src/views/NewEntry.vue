@@ -5,7 +5,7 @@
       <div class="page-title">
         <h3>Новая запись</h3>
       </div>
-      <template v-if="loading">
+      <template v-if="isLoadingCategories && isLoadingUserData">
         <Loader />
       </template>
       <div class="row center" v-else-if="categories === null || !categories.length">
@@ -93,7 +93,7 @@
 </template>
 
 <script>
-import {onMounted, reactive, ref} from "vue";
+import {reactive, ref} from "vue";
 import {getCategories, getUserData, newEntry} from "../firebase";
 import useVuelidate from "@vuelidate/core";
 import { required } from "@vuelidate/validators";
@@ -102,19 +102,17 @@ import { message$ } from "../utils/message.plugin";
 import messages from "../utils/messages";
 import Loader from "../components/Loader";
 
-
-
 export default {
   name: "NewEntry",
   components: {
     Loader,
   },
   setup () {
-    const loading = ref(true)
     const datepicker = ref(null)
     const selectCategories = ref(null)
     const currentIdCategory = ref(null)
-    const categories = ref(null)
+    const { categories, isLoadingCategories } = getCategories()
+    const { userData, isLoadingUserData } = getUserData()
     const { yearMonthDay } = getTime()
     const stateOperationForm = reactive({
       category: null,
@@ -132,52 +130,33 @@ export default {
 
     const v$ = useVuelidate(rules, stateOperationForm)
 
-    onMounted(() => {
-
-    })
-
-    const gCategories = async () => {
-      categories.value = await getCategories()
-
-      loading.value = false;
-
-      // eslint-disable-next-line no-undef
-      selectCategories.value = M.FormSelect.init(selectCategories);
-      // eslint-disable-next-line no-undef
-      datepicker.value = M.Datepicker.init(datepicker.value, {
-        format: 'yyyy mm dd',
-        autoClose: true
-      });
-
-    }
-
-    onMounted(gCategories)
-
+      // // eslint-disable-next-line no-undef
+      // selectCategories.value = M.FormSelect.init(selectCategories);
+      // // eslint-disable-next-line no-undef
+      // datepicker.value = M.Datepicker.init(datepicker.value, {
+      //   format: 'yyyy mm dd',
+      //   autoClose: true
+      // });
 
     const onSubmit = async () => {
-      const userInfo = await getUserData()
       if (v$.value.$invalid) {
         v$.value.$touch()
         return
       }
-      // stateOperationForm.date = dateTime.value
-
       if (stateOperationForm.type === "outcome") {
-        const resultOperation = Number(userInfo.bill) - Number(stateOperationForm.sum);
+        const resultOperation = Number(userData.value.bill) - Number(stateOperationForm.sum);
         await newEntry(stateOperationForm, resultOperation)
         message$(`${messages["addEntry-outcome"]} ${stateOperationForm.sum} UAH`)
         setTimeout(() => {clearStateOperationForm()}, 500)
       }
-
       if (stateOperationForm.type === "income") {
-        const resultOperation = Number(userInfo.bill) + Number(stateOperationForm.sum);
+        const resultOperation = Number(userData.value.bill) + Number(stateOperationForm.sum);
         await newEntry(stateOperationForm, resultOperation)
         message$(`${messages["addEntry-income"]} ${stateOperationForm.sum} UAH`)
         setTimeout(() => {clearStateOperationForm()}, 500)
       }
 
     }
-
     const clearStateOperationForm = () => {
       for (const key in stateOperationForm ) {
         if (key === "date") {
@@ -187,7 +166,17 @@ export default {
       }
     }
 
-    return { datepicker, selectCategories, currentIdCategory, categories, stateOperationForm, v$, onSubmit, loading }
+    return {
+      datepicker,
+      selectCategories,
+      currentIdCategory,
+      categories,
+      stateOperationForm,
+      v$,
+      onSubmit,
+      isLoadingCategories,
+      isLoadingUserData
+    }
   }
 }
 </script>

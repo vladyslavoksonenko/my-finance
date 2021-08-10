@@ -11,7 +11,6 @@ export default {
     chartData: Object
   },
   setup (props) {
-    console.log(props)
     const pie = ref(null);
     const config = reactive({
       type: 'pie',
@@ -48,7 +47,6 @@ export default {
       for (let i = 0; i <= length; i++) {
         arr.push(RandomColor())
       }
-      console.log(arr)
       return arr
     }
 

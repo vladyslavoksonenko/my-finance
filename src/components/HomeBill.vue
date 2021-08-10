@@ -22,7 +22,6 @@ export default {
     billUser: Number
   },
   setup (props) {
-    console.log(props.billUser)
     const money = convertMoney(props.billUser)
 
     return { money }

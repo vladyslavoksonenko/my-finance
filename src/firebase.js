@@ -89,7 +89,6 @@ export const getUserData = () => {
     try {
       const uid = await getUid()
       userData.value = await (await firebase.database().ref(`/users/${uid}/info/`).once('value')).val()
-
     } catch (e) {
       alert("Error:")
     }
@@ -98,32 +97,22 @@ export const getUserData = () => {
   onMounted(fetch)
 
   isLoadingUserData.value = false;
-  return { userData, isLoadingUserData}
+  return { userData, isLoadingUserData }
 }
-
 
 // Category
-
-export const createCategory = async (title, limit) => {
-  try {
-    const uid = await getUid()
-    const category = await firebase.database().ref(`/users/${uid}/categories`).push({title, limit})
-    return { title, limit, id: category.key }
-  } catch (e) {
-    alert(e)
-    throw e
-  }
-}
 
 export const getCategories = () => {
   const categories = ref(null)
   const isLoadingCategories = ref(true)
+
   const fetch = async () => {
     try {
       const uid = await getUid()
-      const res = await ((await firebase.database().ref(`/users/${uid}/categories`).once('value')).val()) || {}
-      categories.value = Object.keys(res).map(key => ({...res[key], id: key}))
+      const res = await ((await firebase.database().ref(`/users/${uid}/categories/`).once('value')).val()) || {}
       isLoadingCategories.value = false
+      console.log("run Fetch")
+      return Object.keys(res).map(key => ({...res[key], id: key}))
       // Одно и тоже (Спред)
       // const resultCategories = []
       // Object.keys(categories).forEach((key) => {
@@ -134,34 +123,48 @@ export const getCategories = () => {
       //   })
       // })
       // return resultCategories
-
     } catch (e) {
       alert(e)
       throw e
     }
   }
-  onMounted(fetch)
-
-  return { isLoadingCategories, categories }
-}
-
-export const editCategory = async (id, title, limit) => {
-  try {
-    const uid = await getUid()
-    await firebase.database().ref(`/users/${uid}/categories/`).child(id).update({title, limit})
-  } catch (e) {
-    alert(e)
+  const getCategories = async () => {
+    categories.value = await fetch()
   }
+  onMounted(getCategories)
+
+  const createCategory = async (title, limit) => {
+    try {
+      const uid = await getUid()
+      const category = await firebase.database().ref(`/users/${uid}/categories/`).push({title, limit})
+      return { title, limit, id: category.key }
+    } catch (e) {
+      alert(e)
+      throw e
+    }
+  }
+  const editCategory = async (id, title, limit) => {
+    try {
+      const uid = await getUid()
+      await firebase.database().ref(`/users/${uid}/categories/`).child(id).update({title, limit})
+    } catch (e) {
+      alert(e)
+      throw e
+    }
+  }
+  const deletedCategories = async (id) => {
+    try {
+      const uid = await getUid()
+      await firebase.database().ref(`/users/${uid}/categories/`).child(id).remove()
+    } catch (e) {
+      alert(e)
+      throw e
+    }
+  }
+
+  return { isLoadingCategories, categories, createCategory, editCategory, deletedCategories, fetch }
 }
 
-export const deletedCategories = async (id) => {
-  try {
-    const uid = await getUid()
-    await firebase.database().ref(`/users/${uid}/categories/`).child(id).remove()
-  } catch (e) {
-    alert(e)
-  }
-}
 
 // NewEntry
 
@@ -196,17 +199,6 @@ export const getEntries = () => {
 
   return {operations, isLoadingOperations}
 }
-
-//
-// export default class FirebaseServer {
-//   constructor(options) {
-//     this.auth = firebase.auth()
-//   }
-//
-//
-//
-// }
-
 
 
 
