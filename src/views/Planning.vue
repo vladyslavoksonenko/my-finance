@@ -42,41 +42,30 @@ import {onMounted, ref, watch} from "vue";
 import getTime from "../utils/clock.plugin";
 import Loader from "../components/Loader";
 
-
 export default {
   name: "Planning",
   components: {
     Loader
   },
   setup() {
-    const loading = ref(true)
-    const billUser = ref(null)
-    const operations = ref(null)
-    const categories = ref(null)
+    const { userData, isLoadingUserData } = getUserData()
+    const { operations, isLoadingOperations } = getEntries()
+    const { categories, isLoadingCategories } = getCategories()
     const resultPlaning = ref([])
     const { yearMonth } = getTime()
     const currentDateMonth = ref(null)
 
     currentDateMonth.value = yearMonth
 
-    const getUserBill = async () => {
-      const userData = await getUserData()
-
-      billUser.value = userData.bill
-      operations.value = await getEntries()
-      categories.value = await getCategories()
-
+    onMounted(() => {
       operations.value = operations.value.filter(op => {
         const dateMonth = op.date.toString().slice(0, -3)
         if (dateMonth === currentDateMonth.value) {
           return op
         }
       })
-
       getLine();
-
-      loading.value = false
-
+    })
     }
     const getLine = () => {
       categories.value = categories.value.map((category) => {
