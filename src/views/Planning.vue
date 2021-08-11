@@ -5,19 +5,19 @@
     <div>
       <div class="page-title">
         <h3>Планирование</h3>
-        <h4>{{ `${billUser} UAH `}}</h4>
+        <h4>{{ `${userData.bill} UAH `}}</h4>
         <div>
-          <input type="month" v-model="currentDateMonth">
+          <input type="month" v-model="currentMonth">
         </div>
       </div>
-      <template v-if="loading">
+      <template v-if="isLoadingUserData && isLoadingOperations && isLoadingCategories">
         <Loader />
       </template>
       <div class="row center" v-else-if="categories === null || !categories.length">
         Сначала <router-link to="/categories">создайте категорию!</router-link>
       </div>
       <section v-else>
-        <div :key="category.id" v-for="category in categories">
+        <div :key="category.id" v-for="category in resultLinesCategories">
           <p>
             <strong>{{category.title}}:</strong>
             {{category.spend}} из {{ category.limit }}
@@ -38,7 +38,7 @@
 
 <script>
 import {getUserData, getEntries, getCategories} from "../firebase";
-import {onMounted, ref, watch} from "vue";
+import {computed, ref} from "vue";
 import getTime from "../utils/clock.plugin";
 import Loader from "../components/Loader";
 
@@ -51,25 +51,27 @@ export default {
     const { userData, isLoadingUserData } = getUserData()
     const { operations, isLoadingOperations } = getEntries()
     const { categories, isLoadingCategories } = getCategories()
-    const resultPlaning = ref([])
     const { yearMonth } = getTime()
-    const currentDateMonth = ref(null)
+    const currentMonth = ref(null)
 
-    currentDateMonth.value = yearMonth
+    currentMonth.value = yearMonth
 
-    onMounted(() => {
-      operations.value = operations.value.filter(op => {
-        const dateMonth = op.date.toString().slice(0, -3)
-        if (dateMonth === currentDateMonth.value) {
-          return op
+    const resultLinesCategories = computed(() => {
+      let resultFilterOperation = []
+       if (operations !== null && categories !== null) {
+          resultFilterOperation = operations.value.filter(op => {
+            const dateMonth = op.date.toString().slice(0, -3)
+            if (dateMonth === currentMonth.value) {
+              return op
+            }
+          })
         }
-      })
-      getLine();
+      return getLine(resultFilterOperation);
     })
-    }
-    const getLine = () => {
-      categories.value = categories.value.map((category) => {
-        const spend = operations.value.filter(op => category.id === op.category.id)
+
+    const getLine = (resultFilterOperation) => {
+      return categories.value.map((category) => {
+        const spend = resultFilterOperation.filter(op => category.id === op.category.id)
             .filter(op => op.type === "outcome")
             .reduce((accumulator, current) => {
               const acc = Number(accumulator)
@@ -92,18 +94,14 @@ export default {
       })
     }
 
-    onMounted(getUserBill)
-    watch(currentDateMonth, () => {
-      getUserBill()
-    })
-
     return {
-      loading,
-      billUser,
+      isLoadingUserData,
+      isLoadingOperations,
+      isLoadingCategories,
+      userData,
       categories,
-      resultPlaning,
-      operations,
-      currentDateMonth
+      currentMonth,
+      resultLinesCategories
     }
   }
 }
