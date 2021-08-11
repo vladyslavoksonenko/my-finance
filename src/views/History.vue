@@ -5,7 +5,7 @@
         <div class="page-title">
           <h3>История</h3>
         </div>
-        <template v-if="loading">
+        <template v-if="isLoadingOperations">
           <Loader />
         </template>
         <template v-else-if="operations === null || !operations.length">
@@ -15,7 +15,7 @@
         </template>
         <div v-else class="history-table">
           <div class="history-chart">
-            <ChartPie :chartData="chartData" />
+<!--            <ChartPie :chartData="chartData" />-->
           </div>
           <table class="highlight responsive-table">
             <thead>
@@ -40,7 +40,7 @@
                     </template>
                   </td>
                   <td>{{ operation.date }}</td>
-                  <td>{{ operation.sum }} ₴</td>
+                  <td>{{ convertMoney(operation.sum) }} ₴</td>
                 </tr>
             </transition-group>
           </table>
@@ -88,93 +88,31 @@
 </template>
 
 <script>
-import {onMounted, ref, watch, reactive} from "vue";
-import {getEntries, getCategories} from "../firebase";
+import {ref, reactive, watch} from "vue";
+import { getEntries } from "../firebase";
 import Loader from "../components/Loader";
-import ChartPie from "../components/ChartPie";
+// import ChartPie from "../components/ChartPie";
+import { paginated } from "../use/usePaginated";
+import { convertMoney } from "../use/useConvertStringToMoney";
 
 
 export default {
   name: "History",
   components: {
-    ChartPie,
+    // ChartPie,
     Loader
   },
   setup () {
-    const loading = ref(true)
-    const selectTable = ref(null)
-    const operations = ref(null)
+    // const selectTable = ref(null)
+    // const { categories, isLoadingCategories } = getCategories();
+
+    const { operations, isLoadingOperations } = getEntries()
     const pageSize = ref(10)
-    const groupsOperation = ref([])
-    const pageNumber = ref(0)
-    const paginatedData = ref(null)
-    const pageCount = ref(null)
-    const pageAmount = ref([])
-    const selectList = ref([])
+    const { nextPage, prevPage, selectList, paginatedData, pageNumber, pageAmount } = paginated(operations.value, pageSize)
 
 
+      // calculateChartData(categories)
 
-    const gOperations = async () => {
-      operations.value = await getEntries()
-      const categories = await getCategories();
-      loading.value = false
-      initSortOperations()
-      getPageAmount()
-      getSelectList()
-      toggleSort()
-      calculateChartData(categories)
-    }
-    onMounted(gOperations)
-
-    const initSortOperations = () => {
-      initPaginated()
-    }
-
-    const nextPage = () => {
-      pageNumber.value++
-    }
-    const prevPage = () => {
-      pageNumber.value--
-    }
-    const getPageAmount = () => {
-      pageAmount.value = []
-      const result = operations.value.length / pageSize.value
-      for (let i = 0; i < result; i++) {
-        pageAmount.value.push(i)
-      }
-    }
-    const initPaginated = () => {
-      let start = pageNumber.value * pageSize.value
-      let end = start + pageSize.value
-
-      paginatedData.value = operations.value.slice(start, end);
-      getPageCount()
-    }
-    const getPageCount = () => {
-      let l = paginatedData.value.length
-      let s = pageSize.value
-      const result = l / Number(s)
-      pageCount.value = result
-      return result
-    }
-
-    watch(pageNumber, initPaginated)
-    watch(pageSize, initPaginated)
-
-    const getSelectList = () => {
-      if (operations.value.length / 10 >= 1) {
-        selectList.value.push(10)
-      }
-      if (operations.value.length / 50 >= 1) {
-        selectList.value.push(50)
-      }
-      if (operations.value.length / 100 >= 1) {
-        selectList.value.push(100)
-      }
-      selectList.value.push(operations.value.length)
-    }
-
-    watch(pageSize, getPageAmount)
 
     // Sorting
 
@@ -200,6 +138,8 @@ export default {
         status: "none",
       }
     })
+
+    watch(operations, toggleSort)
 
     const toggleSort = (item = typeSorting.date) => {
       for (let key in typeSorting) {
@@ -263,31 +203,33 @@ export default {
     }
 
     const sortDate = (status) => {
-      if (status === "down") {
-        operations.value.sort((a, b) => {
-          const dateA = a.date.replace(/-/g, "")
-          const dateB = b.date.replace(/-/g, "")
-          if (dateA < dateB) {
-            return 1
-          }
-          if (dateA > dateB) {
-            return -1
-          }
-          return 0
-        })
-      }
-      if (status === "up") {
-        operations.value.sort((a, b) => {
-          const dateA = a.date.replace(/-/g, "")
-          const dateB = b.date.replace(/-/g, "")
-          if (dateA < dateB) {
-            return -1
-          }
-          if (dateB > dateB) {
-            return 1
-          }
-          return 0
-        })
+      if (operations.value !== null) {
+        if (status === "down") {
+          operations.value.sort((a, b) => {
+            const dateA = a.date.replace(/-/g, "")
+            const dateB = b.date.replace(/-/g, "")
+            if (dateA < dateB) {
+              return 1
+            }
+            if (dateA > dateB) {
+              return -1
+            }
+            return 0
+          })
+        }
+        if (status === "up") {
+          operations.value.sort((a, b) => {
+            const dateA = a.date.replace(/-/g, "")
+            const dateB = b.date.replace(/-/g, "")
+            if (dateA < dateB) {
+              return -1
+            }
+            if (dateB > dateB) {
+              return 1
+            }
+            return 0
+          })
+        }
       }
 
     }
@@ -322,54 +264,55 @@ export default {
 
     }
 
-    watch(typeSorting, initSortOperations)
+    // watch(typeSorting, initSortOperations)
 
-    const initMSelect = () => {
-      // eslint-disable-next-line no-undef
-      selectTable.value = M.FormSelect.init(selectTable.value);
-    }
-    onMounted(initMSelect)
+    // const initMSelect = () => {
+    //   // eslint-disable-next-line no-undef
+    //   selectTable.value = M.FormSelect.init(selectTable.value);
+    // }
+    // onMounted(initMSelect)
 
     // Graph data
 
-    const chartData = reactive({
-      labels: [],
-      data: []
-    })
-
-    const calculateChartData = (categories) => {
-      categories.map((category) => {
-        const spand = operations.value.filter((op) => category.id === op.category.id)
-            .filter(op => op.type === "outcome")
-            .reduce((accumulator, current) => {
-              const acc = Number(accumulator)
-              const curr = Number(current.sum)
-              return acc + curr
-            }, 0)
-        chartData.labels.push(category.title)
-        chartData.data.push(spand)
-      })
-      console.log(chartData)
-
-    }
+    // const chartData = reactive({
+    //   labels: [],
+    //   data: []
+    // })
+    //
+    // const calculateChartData = (categories) => {
+    //   categories.map((category) => {
+    //     const spand = operations.value.filter((op) => category.id === op.category.id)
+    //         .filter(op => op.type === "outcome")
+    //         .reduce((accumulator, current) => {
+    //           const acc = Number(accumulator)
+    //           const curr = Number(current.sum)
+    //           return acc + curr
+    //         }, 0)
+    //     chartData.labels.push(category.title)
+    //     chartData.data.push(spand)
+    //   })
+    //   console.log(chartData)
+    //
+    // }
 
 
     return {
-      loading,
-      selectTable,
+      isLoadingOperations,
+      // isLoadingCategories,
+      // selectTable,
       pageSize,
-      groupsOperation,
+      // groupsOperation,
       nextPage,
       prevPage,
       paginatedData,
-      pageCount,
       pageNumber,
       pageAmount,
       selectList,
       typeSorting,
       toggleSort,
       operations,
-      chartData
+      convertMoney
+      // chartData
     }
   }
 }

@@ -1,7 +1,5 @@
 <template>
   <div class="app-page">
-
-
     <div>
       <div class="page-title">
         <h3>Планирование</h3>
@@ -20,7 +18,7 @@
         <div :key="category.id" v-for="category in resultLinesCategories">
           <p>
             <strong>{{category.title}}:</strong>
-            {{category.spend}} из {{ category.limit }}
+            {{convertMoney(category.spend)}} из {{convertMoney(category.limit)}}
           </p>
           <div class="progress">
             <div
@@ -32,7 +30,6 @@
         </div>
       </section>
     </div>
-
   </div>
 </template>
 
@@ -41,6 +38,7 @@ import {getUserData, getEntries, getCategories} from "../firebase";
 import {computed, ref} from "vue";
 import getTime from "../utils/clock.plugin";
 import Loader from "../components/Loader";
+import {convertMoney} from "../use/useConvertStringToMoney";
 
 export default {
   name: "Planning",
@@ -101,7 +99,8 @@ export default {
       userData,
       categories,
       currentMonth,
-      resultLinesCategories
+      resultLinesCategories,
+      convertMoney
     }
   }
 }

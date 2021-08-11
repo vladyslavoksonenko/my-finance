@@ -11,8 +11,8 @@
       </thead>
       <transition-group name="listOperations" tag="tbody">
         <tr v-for="category in categories" :key="category.id">
-          <td>{{ category.title }}</td>
-          <td>{{ category.limit }}</td>
+          <td>{{ convertMoney(category.title) }}</td>
+          <td>{{ convertMoney(category.limit) }}</td>
           <td>
             <a @click="$emit('open-edit-category', true, category.id)" class="waves-effect waves-yellow btn-small">Edit</a>
           </td>
@@ -27,12 +27,16 @@
 
 <script>
 
+import { convertMoney } from "../use/useConvertStringToMoney";
 
 export default {
   name: "CollectionCategories",
   props: {
     categories: Array
   },
+  setup() {
+    return { convertMoney }
+  }
 }
 </script>
 
