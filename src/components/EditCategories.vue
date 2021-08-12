@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { getCategories } from "../firebase";
+import {firebaseCategories} from "../firebase";
 import {onMounted, reactive, ref, watch} from "vue";
 import {minLength, required} from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
@@ -53,7 +53,7 @@ export default {
   },
   setup(props, { emit }) {
     const currentIdCategory = ref(props.editCategoryId)
-    const { editCategory } = getCategories()
+    const { editCategory } = firebaseCategories()
     const stateCategoriesForm = reactive({
       name: "",
       limited: ""

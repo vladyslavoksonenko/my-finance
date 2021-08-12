@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import {getUserData, getEntries, getCategories} from "../firebase";
+import {getUserData, firebaseCategories, firebaseEntries} from "../firebase";
 import {computed, ref} from "vue";
 import getTime from "../utils/clock.plugin";
 import Loader from "../components/Loader";
@@ -47,8 +47,8 @@ export default {
   },
   setup() {
     const { userData, isLoadingUserData } = getUserData()
-    const { operations, isLoadingOperations } = getEntries()
-    const { categories, isLoadingCategories } = getCategories()
+    const { operations, isLoadingOperations } = firebaseEntries()
+    const { categories, isLoadingCategories } = firebaseCategories()
     const { yearMonth } = getTime()
     const currentMonth = ref(null)
 

@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import { getCategories } from "../firebase";
+import { firebaseCategories } from "../firebase";
 import {reactive} from "vue";
 import {minLength, required} from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
@@ -50,7 +50,7 @@ import {message$} from "../utils/message.plugin";
 export default {
   name: "AddCategories",
   setup(props, { emit }) {
-    const { createCategory } = getCategories()
+    const { createCategory } = firebaseCategories()
     const stateCategoriesForm = reactive({
       name: "",
       limited: ""

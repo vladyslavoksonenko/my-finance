@@ -94,7 +94,7 @@
 
 <script>
 import {reactive, ref} from "vue";
-import {getCategories, getUserData, newEntry} from "../firebase";
+import {getUserData, firebaseEntries, firebaseCategories } from "../firebase";
 import useVuelidate from "@vuelidate/core";
 import { required } from "@vuelidate/validators";
 import getTime from "../utils/clock.plugin";
@@ -111,7 +111,8 @@ export default {
     const datepicker = ref(null)
     const selectCategories = ref(null)
     const currentIdCategory = ref(null)
-    const { categories, isLoadingCategories } = getCategories()
+    const { newEntry } = firebaseEntries()
+    const { categories, isLoadingCategories } = firebaseCategories()
     const { userData, isLoadingUserData } = getUserData()
     const { yearMonthDay } = getTime()
     const stateOperationForm = reactive({

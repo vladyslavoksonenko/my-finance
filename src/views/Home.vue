@@ -24,7 +24,7 @@ import HomeCurrency from "../components/HomeCurrency";
 import HomeBill from "../components/HomeBill";
 import ChartPie from "../components/ChartPie";
 import { useExRates } from "../use/useExRates";
-import {getUserData, getCategories, getEntries} from "../firebase";
+import {getUserData, firebaseCategories, firebaseEntries} from "../firebase";
 import Loader from "../components/Loader";
 import {computed} from "vue";
 import {calculateChartData} from "../use/useGetChartDataCategory";
@@ -40,8 +40,8 @@ export default {
   setup() {
     const { currencies, isLoadingCurrencies } = useExRates()
     const { userData, isLoadingUserData } = getUserData()
-    const { categories, isLoadingCategories } = getCategories()
-    const { operations, isLoadingOperations } = getEntries()
+    const { categories, isLoadingCategories } = firebaseCategories()
+    const { operations, isLoadingOperations } = firebaseEntries()
     const { calculate } = calculateChartData(categories, operations)
 
     const getCurrencyValue = computed(() => {

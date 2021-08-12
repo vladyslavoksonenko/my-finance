@@ -58,7 +58,7 @@ import AddCategories from "../components/AddCategories";
 import EditCategories from "../components/EditCategories";
 import CollectionCategories from "../components/CollectionCategories";
 import {computed, ref, watch} from "vue"
-import { getCategories } from "../firebase";
+import { firebaseCategories } from "../firebase";
 import Loader from "../components/Loader";
 import {message$} from "../utils/message.plugin";
 import messages from "../utils/messages";
@@ -77,7 +77,7 @@ export default {
     const isOpenEditCategory = ref(false)
     const editCategoryId = ref(null)
     const openCreateCategory = ref(null)
-    const { categories, isLoadingCategories, deletedCategories, fetch } = getCategories()
+    const { categories, isLoadingCategories, deletedCategories, getCategories } = firebaseCategories()
     const openTooltip = () => {
       isOpenCreateCategory.value = true
       // eslint-disable-next-line no-undef
@@ -90,7 +90,7 @@ export default {
     const toggleCreateCategory = async (bool, isSend) => {
       isOpenCreateCategory.value = bool
       if (isSend) {
-        categories.value = await fetch()
+        categories.value = await getCategories()
       }
     }
 
@@ -98,7 +98,7 @@ export default {
       isOpenEditCategory.value = bool
       editCategoryId.value = categoryId
       if (isSend) {
-        categories.value = await fetch()
+        categories.value = await getCategories()
       }
     }
 
@@ -113,7 +113,7 @@ export default {
     const dCategory = async (categoryId) => {
       // categories.value = categories.value.filter((itemCategory) => itemCategory.id !== categoryId)
       await deletedCategories(categoryId)
-      categories.value = await fetch()
+      categories.value = await getCategories()
       message$(messages["deletedCategory"])
     }
     computed(() => dCategory)

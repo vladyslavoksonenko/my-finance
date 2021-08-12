@@ -20,14 +20,15 @@
           <table class="highlight responsive-table">
             <thead>
             <tr>
-              <th v-for="item in typeSorting" :key="item" @click="toggleSort(item)">
-                <span class="history-table__title waves-effect">{{ item.title }}</span>
+              <th v-for="item in typeSorting" :key="item">
+                <span @click="sort(item)" class="history-table__title waves-effect">{{ item.title }}</span>
                 <i v-if="item.status ==='down'" class="material-icons icon-filter-history">arrow_drop_down</i>
                 <i v-else-if="item.status ==='up'" class="material-icons icon-filter-history">arrow_drop_up</i>
+                <i v-else></i>
               </th>
             </tr>
             </thead>
-            <transition-group name="listOperations" tag="tBody" class="history-table__body">
+            <tBody class="history-table__body">
                 <tr v-for="(operation) in paginatedData" :key="operation.id">
                   <td>{{ operation.category.title }}</td>
                   <td>{{ operation.description }}</td>
@@ -42,7 +43,7 @@
                   <td>{{ operation.date }}</td>
                   <td>{{ convertMoney(operation.sum) }} ₴</td>
                 </tr>
-            </transition-group>
+            </tBody>
           </table>
           <div class="row">
             <div class="input-field col s6">
@@ -88,12 +89,13 @@
 </template>
 
 <script>
-import {ref, reactive, watch} from "vue";
-import { getEntries } from "../firebase";
+import {watch, ref} from "vue";
+import {firebaseEntries} from "../firebase";
 import Loader from "../components/Loader";
 // import ChartPie from "../components/ChartPie";
 import { paginated } from "../use/usePaginated";
 import { convertMoney } from "../use/useConvertStringToMoney";
+import useSortOperations from "../use/useSortOperations";
 
 
 export default {
@@ -105,166 +107,32 @@ export default {
   setup () {
     // const selectTable = ref(null)
     // const { categories, isLoadingCategories } = getCategories();
-
-    const { operations, isLoadingOperations } = getEntries()
+    const { operations, isLoadingOperations } = firebaseEntries()
+    const { typeSorting, toggleSort, resultSortOperations } = useSortOperations()
+    const { nextPage, prevPage, selectList, paginatedData, pageNumber, pageAmount, editPageSize, getPaginated } = paginated()
     const pageSize = ref(10)
-    const { nextPage, prevPage, selectList, paginatedData, pageNumber, pageAmount } = paginated(operations.value, pageSize)
 
-
-      // calculateChartData(categories)
-
-
-    // Sorting
-
-    const typeSorting = reactive({
-      categories: {
-        title: "Категории",
-        status: "none",
-      },
-      description: {
-        title: "Описание",
-        status: "none",
-      },
-      type: {
-        title: "Тип",
-        status: "none",
-      },
-      date: {
-        title: "Дата",
-        status: "up",
-      },
-      sum: {
-        title: "Сумма",
-        status: "none",
+    watch(operations,() => {
+      if (operations !== null) {
+        toggleSort(operations, typeSorting.date)
+        getPaginated(resultSortOperations)
       }
     })
 
-    watch(operations, toggleSort)
+    watch(pageSize, () => {
+      editPageSize(pageSize)
+    })
 
-    const toggleSort = (item = typeSorting.date) => {
-      for (let key in typeSorting) {
-        if (typeSorting[key] === item && typeSorting[key].title !== "Категории" && typeSorting[key].title !== "Описание" ) {
-          switch (item.status) {
-            case "none":
-              item.status = "down"
-              chooseSortTable(item)
-              break;
-            case "down":
-              item.status = "up"
-              chooseSortTable(item)
-              break;
-            case "up":
-              item.status = "down"
-              chooseSortTable(item)
-              break;
-          }
-        } else {
-          typeSorting[key].status = "none"
-        }
-      }
+    const sort = (item) => {
+      toggleSort(operations, item)
+      getPaginated(resultSortOperations)
     }
 
-    const chooseSortTable = (item) => {
-      if (item.title === "Тип") {
-        sortType(item.status)
-      }
-      if (item.title === "Дата") {
-        sortDate(item.status)
-      }
-      if (item.title === "Сумма") {
-        sortSum(item.status)
-      }
-    }
 
-    const sortType = (status) => {
-      if (status === "down") {
-        operations.value.sort((a, b) => {
-          if (a.type > b.type) {
-            return 1
-          }
-          if (a.type < b.type) {
-            return -1
-          }
-          return 0
-        })
-      }
-      if (status === "up") {
-        operations.value.sort((a, b) => {
-          if (a.type < b.type) {
-            return 1
-          }
-          if (a.type > b.type) {
-            return -1
-          }
-          return 0
-        })
-      }
 
-    }
 
-    const sortDate = (status) => {
-      if (operations.value !== null) {
-        if (status === "down") {
-          operations.value.sort((a, b) => {
-            const dateA = a.date.replace(/-/g, "")
-            const dateB = b.date.replace(/-/g, "")
-            if (dateA < dateB) {
-              return 1
-            }
-            if (dateA > dateB) {
-              return -1
-            }
-            return 0
-          })
-        }
-        if (status === "up") {
-          operations.value.sort((a, b) => {
-            const dateA = a.date.replace(/-/g, "")
-            const dateB = b.date.replace(/-/g, "")
-            if (dateA < dateB) {
-              return -1
-            }
-            if (dateB > dateB) {
-              return 1
-            }
-            return 0
-          })
-        }
-      }
 
-    }
-
-    const sortSum = (status) => {
-      if (status === "down") {
-        operations.value.sort((a, b) => {
-          const dateA = parseInt(a.sum)
-          const dateB = parseInt(b.sum)
-          if (dateA < dateB) {
-            return 1
-          }
-          if (dateA > dateB) {
-            return -1
-          }
-          return 0
-        })
-      }
-      if (status === "up") {
-        operations.value.sort((a, b) => {
-          const dateA = parseInt(a.sum)
-          const dateB = parseInt(b.sum)
-          if (dateA < dateB) {
-            return -1
-          }
-          if (dateB > dateB) {
-            return 1
-          }
-          return 0
-        })
-      }
-
-    }
-
-    // watch(typeSorting, initSortOperations)
+      // calculateChartData(categories)
 
     // const initMSelect = () => {
     //   // eslint-disable-next-line no-undef
@@ -309,9 +177,9 @@ export default {
       pageAmount,
       selectList,
       typeSorting,
-      toggleSort,
       operations,
-      convertMoney
+      convertMoney,
+      sort
       // chartData
     }
   }
@@ -352,15 +220,15 @@ a {
   cursor: pointer;
 }
 
-.listOperations-item {
-  display: inline-block;
-  margin-right: 10px;
-}
-.listOperations-enter-active, .listOperations-leave-active {
-  transition: all .1s;
-}
-.listOperations-enter, .listOperations-leave-to /* .listOperations-leave-active до версии 2.1.8 */ {
-  opacity: 0;
-  transform: translateX(10px);
-}
+/*.listOperations-item {*/
+/*  display: inline-block;*/
+/*  margin-right: 10px;*/
+/*}*/
+/*.listOperations-enter-active, .listOperations-leave-active {*/
+/*  transition: all .1s;*/
+/*}*/
+/*.listOperations-enter, .listOperations-leave-to !* .listOperations-leave-active до версии 2.1.8 *! {*/
+/*  opacity: 0;*/
+/*  transform: translateX(10px);*/
+/*}*/
 </style>

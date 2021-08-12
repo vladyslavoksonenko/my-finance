@@ -1,5 +1,5 @@
 import firebase from "firebase";
-import {ref, onUnmounted, computed, onMounted} from "vue";
+import { ref, onUnmounted, computed, onMounted } from "vue";
 
 firebase.initializeApp({
   apiKey: "AIzaSyDcUIkydrkmTxDZFdDB3rDK2AW3YZQtF6M",
@@ -12,9 +12,7 @@ firebase.initializeApp({
   measurementId: "G-1CH84V1LH7"
 })
 
-
 const auth = firebase.auth()
-
 
 export const useAuth = () => {
 
@@ -73,14 +71,14 @@ export const useAuth = () => {
 
 }
 
-// Получаю ID
+// Get ID
 
 const getUid = async () => {
   const user = await auth.currentUser
   return user ? user.uid : null
 }
 
-// Получаю Инфу из БД про Юзера
+// get Info user Data
 
 export const getUserData = () => {
   const userData = ref({})
@@ -100,20 +98,20 @@ export const getUserData = () => {
   return { userData, isLoadingUserData }
 }
 
-// Category
+// Categories
 
-export const getCategories = () => {
+export const firebaseCategories = () => {
   const categories = ref(null)
   const isLoadingCategories = ref(true)
 
-  const fetch = async () => {
+  const getCategories = async () => {
     try {
       const uid = await getUid()
       const res = await ((await firebase.database().ref(`/users/${uid}/categories/`).once('value')).val()) || {}
       isLoadingCategories.value = false
       console.log("run Fetch")
-      return Object.keys(res).map(key => ({...res[key], id: key}))
-      // Одно и тоже (Спред)
+      return categories.value = Object.keys(res).map(key => ({...res[key], id: key}))
+      // (Спред)
       // const resultCategories = []
       // Object.keys(categories).forEach((key) => {
       //   resultCategories.push({
@@ -128,9 +126,7 @@ export const getCategories = () => {
       throw e
     }
   }
-  const getCategories = async () => {
-    categories.value = await fetch()
-  }
+
   onMounted(getCategories)
 
   const createCategory = async (title, limit) => {
@@ -166,39 +162,39 @@ export const getCategories = () => {
 }
 
 
-// NewEntry
+// Operations
 
-export const newEntry = async (operation, resultOperation) => {
-  try {
-    const uid = await getUid()
-    await firebase.database().ref(`/users/${uid}/info/`).update({bill: resultOperation})
-    await firebase.database().ref(`/users/${uid}/operations`).push({ ...operation })
-
-  } catch (e) {
-    alert(e)
-  }
-}
-
-export const getEntries = () => {
+export const firebaseEntries = () => {
   const operations = ref(null)
   const isLoadingOperations = ref(true)
 
-  const fetch = async () => {
+  const getEntries = async () => {
     try {
       const uid = await getUid()
       const res = await ((await firebase.database().ref(`/users/${uid}/operations`).once('value')).val()) || {}
-      operations.value = Object.keys(res).map(key => ({...res[key], id: key}))
       isLoadingOperations.value = false
+      return operations.value = Object.keys(res).map(key => ({...res[key], id: key}))
+    } catch (e) {
+      alert(e)
+    }
+  }
+  onMounted(getEntries)
 
+  const newEntry = async (operation, resultOperation) => {
+    try {
+      const uid = await getUid()
+      await firebase.database().ref(`/users/${uid}/info/`).update({bill: resultOperation})
+      await firebase.database().ref(`/users/${uid}/operations`).push({ ...operation })
     } catch (e) {
       alert(e)
     }
   }
 
-  onMounted(fetch)
+  return {operations, isLoadingOperations, getEntries, newEntry}
 
-  return {operations, isLoadingOperations}
 }
+
+
 
 
 
